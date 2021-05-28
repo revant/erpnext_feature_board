@@ -1,0 +1,110 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "creation": "2021-05-28 23:52:39.252967",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "sb_pull_request",
+  "repository",
+  "title",
+  "branch",
+  "raw_data",
+  "cb_pull_request",
+  "url",
+  "status",
+  "number"
+ ],
+ "fields": [
+  {
+   "fieldname": "repository",
+   "fieldtype": "Link",
+   "label": "Repository",
+   "options": "Github Repository",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_pull_request",
+   "fieldtype": "Section Break",
+   "label": "Pull Request Details"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "GH-IMP-.YYYY.-"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "read_only": 1
+  },
+  {
+   "fieldname": "url",
+   "fieldtype": "Data",
+   "label": "URL",
+   "options": "URL",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "raw_data",
+   "fieldtype": "Long Text",
+   "hidden": 1,
+   "label": "Raw Data"
+  },
+  {
+   "fieldname": "number",
+   "fieldtype": "Data",
+   "label": "Number",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_pull_request",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Branch",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-05-29 01:08:19.085589",
+ "modified_by": "Administrator",
+ "module": "ERPNext Feature Board",
+ "name": "Improvement",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "title_field": "title",
+ "track_changes": 1
+}
