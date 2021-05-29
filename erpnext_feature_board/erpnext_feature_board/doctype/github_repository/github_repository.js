@@ -11,11 +11,12 @@ frappe.ui.form.on('Github Repository', {
 					freeze: true,
 					callback: (r) => {
 						if (!r.exc) {
-							frappe.msgprint(__("Improvement records created from all open Pull Requests"))
+							frappe.msgprint(__(`Pull requests are being fetched and
+								will be created as Improvement records`))
 						}
 					}
 				});
-			});
+			}).addClass("btn-primary");
 		}
 	}
 });

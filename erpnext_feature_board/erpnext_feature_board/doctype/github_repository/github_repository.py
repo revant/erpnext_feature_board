@@ -1,6 +1,8 @@
 # Copyright (c) 2021, ERPNext Community and contributors
 # For license information, please see license.txt
 
+from typing import TYPE_CHECKING
+
 import json
 
 from github import Github
@@ -11,6 +13,10 @@ from giturlparse.parser import ParserError
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from frappe.utils import markdown
+
+if TYPE_CHECKING:
+	from github.PullRequest import PullRequest
 
 
 class GithubRepository(Document):
@@ -46,17 +52,36 @@ class GithubRepository(Document):
 
 	@frappe.whitelist()
 	def sync_pull_requests(self):
-		repo = self.connect()
-		pull_requests = repo.get_pulls(state="open")
-		for pull in pull_requests:
-			improvement = frappe.new_doc("Improvement")
-			improvement.update({
-				"repository": self.name,
-				"title": pull.title[:140],
-				"branch": pull.head.ref,
-				"raw_data": json.dumps(pull.raw_data),
-				"url": pull.html_url,
-				"status": pull.state.title(),
-				"number": pull.number
-			})
-			improvement.insert()
+		frappe.enqueue(method=create_repository_improvements, repository=self.name)
+
+
+def create_repository_improvements(repository: str):
+	repo_doc: GithubRepository = frappe.get_doc("Github Repository", repository)
+	repo = repo_doc.connect()
+	if not repo:
+		return
+
+	pull_requests = repo.get_pulls(state="open")
+	for pull in pull_requests:
+		update_improvement(pull, repository)
+
+
+def update_improvement(pull_request: "PullRequest", repository: str):
+	if not frappe.db.exists("Improvement", {"pull_request_url": pull_request.html_url}):
+		improvement_doc = frappe.new_doc("Improvement")
+	else:
+		improvement = frappe.db.get_value("Improvement", {"pull_request_url": pull_request.html_url})
+		improvement_doc = frappe.get_doc("Improvement", improvement)
+
+	improvement_doc.update({
+		"branch": pull_request.head.ref,
+		"description": markdown(pull_request.body),
+		"fork_url": pull_request.head.repo.html_url,
+		"number": pull_request.number,
+		"pull_request_url": pull_request.html_url,
+		"raw_data": json.dumps(pull_request.raw_data),
+		"repository": repository,
+		"status": pull_request.state.title(),
+		"title": pull_request.title[:140]
+	})
+	improvement_doc.save()
