@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: build-${PR}
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      securityContext:
+        supplementalGroups: [1000]
+      containers:
+        - name: build-worker
+          image: gcr.io/kaniko-project/executor:latest
+          args:
+            - "--dockerfile=build/erpnext-worker/Dockerfile"
+            - "--context=git://github.com/frappe/frappe_docker.git"
+            - "--build-arg=GIT_REPO=${PR_REPO}"
+            - "--build-arg=IMAGE_TAG=${MERGING_INTO_VERSION}"
+            - "--build-arg=GIT_BRANCH=${PR_BRANCH}"
+            - "--destination=in-cluster-registry-service.registry.svc.cluster.local:5000/erpnext-worker:latest"
+        - name: build-nginx
+          image: gcr.io/kaniko-project/executor:latest
+          args:
+            - "--dockerfile=build/erpnext-nginx/Dockerfile"
+            - "--context=git://github.com/frappe/frappe_docker.git"
+            - "--build-arg=GIT_REPO=${PR_REPO}"
+            - "--build-arg=IMAGE_TAG=${MERGING_INTO_VERSION}"
+            - "--build-arg=GIT_BRANCH=${PR_BRANCH}"
+            - "--destination=in-cluster-registry-service.registry.svc.cluster.local:5000/erpnext-nginx:latest"
+      restartPolicy: Never
