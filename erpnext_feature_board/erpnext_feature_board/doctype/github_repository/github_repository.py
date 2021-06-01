@@ -74,14 +74,15 @@ def update_improvement(pull_request: "PullRequest", repository: str):
 		improvement_doc = frappe.get_doc("Improvement", improvement)
 
 	improvement_doc.update({
-		"branch": pull_request.head.ref,
 		"description": markdown(pull_request.body),
 		"fork_url": pull_request.head.repo.html_url,
 		"number": pull_request.number,
 		"pull_request_url": pull_request.html_url,
 		"raw_data": json.dumps(pull_request.raw_data),
 		"repository": repository,
+		"source_branch": pull_request.head.ref,
 		"status": pull_request.state.title(),
+		"target_branch": pull_request.base.ref,
 		"title": pull_request.title[:140]
 	})
 	improvement_doc.save()
