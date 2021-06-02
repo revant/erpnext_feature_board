@@ -1,4 +1,5 @@
 import datetime
+import time
 
 import frappe
 from kubernetes import client, config
@@ -41,7 +42,7 @@ def get_namespace():
 
 def create_build_image_job(improvement_name, image_tag, git_repo, git_branch):
 	load_config()
-	job_name = f"build-{improvement_name}".lower()  # only lowercase email allowed
+	job_name = f"build-{improvement_name}".lower()  # only lowercase only allowed
 	batch_v1_api = client.BatchV1Api()
 	body = client.V1Job(api_version="batch/v1", kind="Job")
 	body.metadata = client.V1ObjectMeta(
@@ -142,9 +143,9 @@ def create_build_image_job(improvement_name, image_tag, git_repo, git_branch):
 		)
 		return to_dict(api_response)
 	except (ApiException, Exception) as e:
-		print(e)
 		out = {
 			"error": e,
+			"function_name": "create_build_image_job",
 			"params": {
 				"improvement_name": improvement_name,
 				"image_tag": image_tag,
@@ -170,6 +171,7 @@ def get_job_status(job_name):
 	except (ApiException, Exception) as e:
 		out = {
 			"error": e,
+			"function_name": "get_job_status",
 			"params": {"job_name": job_name},
 		}
 		reason = getattr(e, "reason")
@@ -267,6 +269,7 @@ def create_helm_release(improvement_name):
 	except (ApiException, Exception) as e:
 		out = {
 			"error": e,
+			"function_name": "create_helm_release",
 			"params": {"improvement_name": improvement_name},
 		}
 		reason = getattr(e, "reason")
@@ -280,8 +283,17 @@ def create_helm_release(improvement_name):
 def update_helm_release(improvement_name):
 	improvement = frappe.get_doc("Improvement", improvement_name)
 
+	migration_timestamp = str(time.time())
 	load_config()
 	crd = client.CustomObjectsApi()
+	body = {
+		"spec": {
+			"values": {
+				"migrateJob": {"enable": True, "backup": False},
+				migration_timestamp: "Migration",
+			},
+		},
+	}
 	try:
 		res = crd.patch_namespaced_custom_object(
 			"helm.fluxcd.io",
@@ -296,6 +308,7 @@ def update_helm_release(improvement_name):
 	except (ApiException, Exception) as e:
 		out = {
 			"error": e,
+			"function_name": "update_helm_release",
 			"params": {"improvement_name": improvement_name},
 		}
 		reason = getattr(e, "reason")
@@ -321,6 +334,7 @@ def delete_helm_release(improvement_name):
 	except (ApiException, Exception) as e:
 		out = {
 			"error": e,
+			"function_name": "delete_helm_release",
 			"params": {"improvement_name": improvement_name},
 		}
 		reason = getattr(e, "reason", None)
@@ -333,7 +347,121 @@ def delete_helm_release(improvement_name):
 		return out
 
 
-def tear_down_improvement_site_resources(improvement_name):
-	# TODO: delete images
-	# TODO: delete Build jobs
-	pass
+def start_job_to_delete_improvement_site_images(improvement_name):
+	load_config()
+	job_name = f"{improvement_name}-delete-images".lower()
+	volume_mounts = [
+		client.V1VolumeMount(
+			mount_path="/root/.docker",
+			name="container-config",
+		)
+	]
+	volumes = [
+		client.V1Volume(
+			name="container-config",
+			projected=client.V1ProjectedVolumeSource(
+				sources=[
+					client.V1VolumeProjection(
+						secret=client.V1SecretProjection(
+							name=frappe.get_conf().get(
+								"container_push_secret", "regcred"
+							),
+							items=[
+								client.V1KeyToPath(
+									key=".dockerconfigjson",
+									path="config.json",
+								)
+							],
+						)
+					)
+				]
+			),
+		)
+	]
+	host_aliases = None
+	env = None
+	batch_v1_api = client.BatchV1Api()
+	body = client.V1Job(api_version="batch/v1", kind="Job")
+	body.metadata = client.V1ObjectMeta(
+		namespace=get_namespace(),
+		name=job_name,
+	)
+	registry = "https://" + get_container_registry()
+	if frappe.get_conf().get("developer_mode"):
+		registry = "http://" + get_container_registry()
+		env = [
+			client.V1EnvVar(name="INSECURE_REGISTRY", value="true"),
+			client.V1EnvVar(name="TRACE", value="true"),
+		]
+		host_aliases = [
+			client.V1HostAlias(
+				ip=frappe.get_conf().get("docker_host_ip", "172.17.0.1"),
+				hostnames=["registry.localhost"],
+			)
+		]
+
+	body.status = client.V1JobStatus()
+	body.spec = client.V1JobSpec(
+		template=client.V1PodTemplateSpec(
+			spec=client.V1PodSpec(
+				security_context=client.V1PodSecurityContext(
+					supplemental_groups=[1000]
+				),
+				containers=[
+					client.V1Container(
+						name="delete-images",
+						image="byrnedo/reg-tool:latest",
+						command=["bash", "-c"],
+						args=[
+							f"""/docker_reg_tool {registry} delete erpnext-worker {improvement_name};
+							/docker_reg_tool {registry} delete erpnext-nginx {improvement_name};"""
+						],
+						env=env,
+						volume_mounts=volume_mounts,
+					),
+				],
+				restart_policy="Never",
+				volumes=volumes,
+				host_aliases=host_aliases,
+			)
+		)
+	)
+
+	try:
+		api_response = batch_v1_api.create_namespaced_job(
+			get_namespace(), body, pretty=True
+		)
+		return to_dict(api_response)
+	except (ApiException, Exception) as e:
+		out = {
+			"error": e,
+			"function_name": "start_job_to_delete_improvement_site_images",
+			"params": {"improvement_name": improvement_name},
+		}
+		reason = getattr(e, "reason")
+		if reason:
+			out["reason"] = reason
+
+		frappe.log_error(out, "Exception: BatchV1Api->create_namespaced_job")
+		return out
+
+
+def delete_job(job_name):
+	load_config()
+	batch_v1 = client.BatchV1Api()
+
+	try:
+		job = batch_v1.delete_namespaced_job(name=job_name, namespace=get_namespace())
+		return to_dict(job)
+	except (ApiException, Exception) as e:
+		out = {
+			"error": e,
+			"function_name": "delete_job",
+			"params": {"job_name": job_name},
+		}
+		reason = getattr(e, "reason")
+		if reason:
+			out["reason"] = reason
+
+		frappe.log_error(out, "Exception: BatchV1Api->delete_namespaced_job")
+		return out
