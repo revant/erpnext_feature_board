@@ -34,12 +34,19 @@ class GithubRepository(Document):
 
 		try:
 			self.connect(raise_exception=True)
-		except (BadCredentialsException, UnknownObjectException):
+		except BadCredentialsException:
+			# process 403 errors
 			frappe.throw(_("Invalid Github URL"))
+		except UnknownObjectException:
+			# process 404 errors
+			frappe.throw(_("""The repository was not found. If your repository is private,
+				please generate and set a personal access token with 'repo' read permissions."""))
 
 	def connect(self, raise_exception=False):
 		github_url = parse(self.repository_url)
-		client = Github(self.get_password("access_token"))
+		client = Github(
+			login_or_token=self.get_password("access_token") if self.access_token else None
+		)
 
 		repo = None
 		try:
