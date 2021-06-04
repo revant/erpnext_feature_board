@@ -14,8 +14,7 @@
   {
    "fieldname": "access_token",
    "fieldtype": "Password",
-   "label": "Personal Access Token",
-   "reqd": 1
+   "label": "Personal Access Token"
   },
   {
    "fieldname": "repository_url",
@@ -33,7 +32,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-06-01 13:01:24.238417",
+ "modified": "2021-06-04 18:40:35.961627",
  "modified_by": "Administrator",
  "module": "ERPNext Feature Board",
  "name": "Github Repository",
