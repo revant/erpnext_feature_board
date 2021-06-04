@@ -44,7 +44,7 @@ app_license = "MIT"
 
 # website user home page (by Role)
 # role_home_page = {
-#	"Role": "home_page"
+# 	"Role": "home_page"
 # }
 
 # Generators
@@ -103,29 +103,17 @@ app_license = "MIT"
 # 		"on_update": "method",
 # 		"on_cancel": "method",
 # 		"on_trash": "method"
-#	}
+# 	}
 # }
 
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"erpnext_feature_board.tasks.all"
-# 	],
-# 	"daily": [
-# 		"erpnext_feature_board.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"erpnext_feature_board.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"erpnext_feature_board.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"erpnext_feature_board.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"hourly": [
+		"erpnext_feature_board.erpnext_feature_board.doctype.github_repository.github_repository.sync_repository_improvements"
+	]
+}
 
 # Testing
 # -------
@@ -181,4 +169,3 @@ app_license = "MIT"
 # auth_hooks = [
 # 	"erpnext_feature_board.auth.validate"
 # ]
-
