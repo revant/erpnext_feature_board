@@ -2,3 +2,4 @@
 git-url-parse~=1.2.2
 kubernetes==17.17.0
 PyGithub~=1.55
+python-dxf==7.7.1

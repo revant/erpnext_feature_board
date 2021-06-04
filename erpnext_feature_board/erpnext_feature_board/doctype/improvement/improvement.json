@@ -9,6 +9,7 @@
  "field_order": [
   "repository",
   "naming_series",
+  "deployment_status",
   "cb_improvement",
   "route",
   "sb_pull_request",
@@ -22,7 +23,11 @@
   "source_branch",
   "target_branch",
   "sb_debugging",
-  "raw_data"
+  "raw_data",
+  "sb_site_details",
+  "site_url",
+  "cb_site_details",
+  "site_admin_password"
  ],
  "fields": [
   {
@@ -119,13 +124,41 @@
    "fieldtype": "Data",
    "label": "Target Branch",
    "read_only": 1
+  },
+  {
+   "fieldname": "deployment_status",
+   "fieldtype": "Select",
+   "label": "Deployment Status",
+   "options": "\nReady\nBuild Queued\nBuild Queue Failed\nBuilding\nBuild Complete\nBuild Error\nRelease Queued\nRelease Queue Failed\nRelease Error\nUpgrade Queued\nUpgrade Queued Failed\nRebuilding\nRebuild Error\nRebuild Complete\nUpgrading\nUpgrading Failed\nUpgrade Error\nDelete Queued\nDelete Queue Failed\nRelease Deleted",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_site_details",
+   "fieldtype": "Section Break",
+   "label": "Site Details"
+  },
+  {
+   "fieldname": "site_url",
+   "fieldtype": "Data",
+   "label": "Site URL",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_site_details",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "site_admin_password",
+   "fieldtype": "Data",
+   "label": "Site Admin Password",
+   "read_only": 1
   }
  ],
  "has_web_view": 1,
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-06-01 13:05:14.104361",
+ "modified": "2021-06-04 22:00:36.575097",
  "modified_by": "Administrator",
  "module": "ERPNext Feature Board",
  "name": "Improvement",

@@ -182,23 +182,22 @@ def get_job_status(job_name):
 		return out
 
 
-def create_helm_release(improvement_name):
-	improvement = frappe.get_doc("Improvement", improvement_name)
-	site_password = frappe.generate_hash(length=10)
-
-	# Save site password
-	# improvement.site_password = site_password
-	# improvement.save()
-	# frappe.db.commit()
-
+def create_helm_release(improvement_name, site_name, site_password):
 	db_root_user = frappe.get_conf().get("db_root_user", "root")
 	db_root_password = frappe.get_conf().get("db_root_password", "admin")
 	mariadb_host = frappe.get_conf().get(
 		"mariadb_host", "mariadb.mariadb.svc.cluster.local"
 	)
+	redis_queue_host = frappe.get_conf().get(
+		"redis_queue_host", "redis-master.redis.svc.cluster.local:6379/0"
+	)
+	redis_cache_host = frappe.get_conf().get(
+		"redis_cache_host", "redis-master.redis.svc.cluster.local:6379/1"
+	)
+	redis_socketio_host = frappe.get_conf().get(
+		"redis_socketio_host", "redis-master.redis.svc.cluster.local:6379/2"
+	)
 	install_apps = frappe.get_conf().get("install_apps", "erpnext")
-	domain_name = frappe.get_conf().get("domain_name", "test-erpnext.org")
-	site_name = improvement_name.lower() + "." + domain_name
 	load_config()
 	crd = client.CustomObjectsApi()
 	body = {
@@ -281,9 +280,7 @@ def create_helm_release(improvement_name):
 
 
 def update_helm_release(improvement_name):
-	improvement = frappe.get_doc("Improvement", improvement_name)
-
-	migration_timestamp = str(time.time())
+	migration_timestamp = str(round(time.time()))
 	load_config()
 	crd = client.CustomObjectsApi()
 	body = {
@@ -302,7 +299,6 @@ def update_helm_release(improvement_name):
 			"helmreleases",
 			improvement_name.lower(),
 			body,
-			pretty=True,
 		)
 		return to_dict(res)
 	except (ApiException, Exception) as e:
@@ -464,4 +460,32 @@ def delete_job(job_name):
 			out["reason"] = reason
 
 		frappe.log_error(out, "Exception: BatchV1Api->delete_namespaced_job")
+		return out
+
+
+def get_helm_release(improvement_name):
+	load_config()
+	crd = client.CustomObjectsApi()
+	try:
+		res = crd.get_namespaced_custom_object(
+			"helm.fluxcd.io",
+			"v1",
+			get_namespace(),
+			"helmreleases",
+			improvement_name,
+		)
+		return to_dict(res)
+	except (ApiException, Exception) as e:
+		out = {
+			"error": e,
+			"function_name": "get_helm_release",
+			"params": {"improvement_name": improvement_name},
+		}
+		reason = getattr(e, "reason", None)
+		if reason:
+			out["reason"] = reason
+
+		frappe.log_error(
+			out, "Exception: CustomObjectsApi->get_namespaced_custom_object"
+		)
 		return out

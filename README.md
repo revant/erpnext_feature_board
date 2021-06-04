@@ -25,8 +25,15 @@ k3d cluster create devcluster \
 
 ```
 docker volume create local_registry
-docker container run -d --name registry.localhost -v local_registry:/var/lib/registry --restart always -p 5000:5000 registry:2
+docker container run -d \
+  --name registry.localhost \
+  -e "REGISTRY_STORAGE_DELETE_ENABLED=true" \
+  -p 5000:5000 \
+  -v local_registry:/var/lib/registry \
+  --restart always \
+  registry:2
 docker network connect k3d-devcluster registry.localhost
+docker login registry.localhost:5000 -u admin -p password
 ```
 
 ### Add Helm Repo

@@ -112,7 +112,19 @@ app_license = "MIT"
 scheduler_events = {
 	"hourly": [
 		"erpnext_feature_board.erpnext_feature_board.doctype.github_repository.github_repository.sync_repository_improvements"
-	]
+	],
+	"all": [
+		"erpnext_feature_board.tasks.deploy.process_build_queue_improvements",
+		"erpnext_feature_board.tasks.deploy.process_building_improvements",
+		"erpnext_feature_board.tasks.deploy.process_build_complete_improvements",
+		"erpnext_feature_board.tasks.deploy.process_release_queued_improvements",
+		"erpnext_feature_board.tasks.deploy.process_upgrade_queued_improvements",
+		"erpnext_feature_board.tasks.deploy.process_rebuilding_improvements",
+		"erpnext_feature_board.tasks.deploy.process_rebuild_complete_improvements",
+		"erpnext_feature_board.tasks.deploy.process_upgrading_improvements",
+		"erpnext_feature_board.tasks.deploy.process_delete_queued_improvements",
+		"erpnext_feature_board.tasks.deploy.process_release_deleted_improvements",
+	],
 }
 
 # Testing
