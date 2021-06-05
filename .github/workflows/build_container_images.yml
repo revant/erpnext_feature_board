@@ -40,6 +40,7 @@ jobs:
           repository: registry.castlecraft.co.in/efb-worker
           tags: ${{ steps.docker_meta.outputs.tags }}
           file: containers/worker/Dockerfile
+          build-args: "FRAPPE_BRANCH=version-13"
   build_nginx:
     runs-on: ubuntu-latest
     steps:
@@ -73,3 +74,4 @@ jobs:
           repository: registry.castlecraft.co.in/efb-nginx
           tags: ${{ steps.docker_meta.outputs.tags }}
           file: containers/nginx/Dockerfile
+          build-args: "FRAPPE_BRANCH=version-13"
