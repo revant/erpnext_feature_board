@@ -1,0 +1,47 @@
+nginxImage:
+  repository: registry.example.com/efb-nginx
+  tag: main
+  pullPolicy: Always
+
+pythonImage:
+  repository: registry.example.com/efb-worker
+  tag: main
+  pullPolicy: Always
+
+imagePullSecrets:
+  - name: regcred
+
+mariadbHost: "mariadb.mariadb.svc.cluster.local"
+
+redisQueueHost: "redis-master.redis.svc.cluster.local:6379/3"
+redisCacheHost: "redis-master.redis.svc.cluster.local:6379/4"
+redisSocketIOHost: "redis-master.redis.svc.cluster.local:6379/5"
+
+persistence:
+  worker:
+    enabled: true
+    size: 4Gi
+    storageClass: "nfs"
+  logs:
+    enabled: false
+
+dbRootPassword: admin
+createSite:
+  enabled: true
+  siteName: "board.example.com"
+  dbRootUser: "root"
+  adminPassword: "admin"
+  installApps: "erpnext_feature_board"
+  dropSiteOnUninstall: false
+
+ingress:
+  enabled: true
+  hosts:
+  - host: board.example.com
+    paths:
+    - path: /
+      pathType: ImplementationSpecific
+  tls:
+   - secretName: wildcard-example-com-tls
+     hosts:
+       - board.example.com

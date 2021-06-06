@@ -262,13 +262,16 @@ def create_helm_release(improvement_name, site_name, site_password):
 	}
 
 	if not frappe.get_conf().get("developer_mode"):
-		image_pull_secrets = frappe.get_conf().get("container_push_secret", "regcred")
+		wildcard_tls_secret = frappe.get_conf().get(
+			"wildcard_tls_secret", "wildcard-example-com-tls"
+		)
 		body["spec"]["values"]["ingress"]["tls"] = [
 			{
-				"secretName": image_pull_secrets,
+				"secretName": wildcard_tls_secret,
 				"hosts": [site_name],
 			}
 		]
+		image_pull_secrets = frappe.get_conf().get("container_push_secret", "regcred")
 		body["spec"]["values"]["imagePullSecrets"] = [{"name": image_pull_secrets}]
 
 	try:
@@ -286,7 +289,9 @@ def create_helm_release(improvement_name, site_name, site_password):
 		if reason:
 			out["reason"] = reason
 
-		frappe.log_error(out, "Exception: BatchV1Api->read_namespaced_job")
+		frappe.log_error(
+			out, "Exception: CustomObjectsApi->create_namespaced_custom_object"
+		)
 		return out
 
 

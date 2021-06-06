@@ -1,0 +1,29 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-wildcard
+spec:
+  acme:
+    privateKeySecretRef:
+      name: letsencrypt-wildcard
+    email: admin@example.com
+    server: https://acme-v02.api.letsencrypt.org/directory
+    solvers:
+    - selector:
+        dnsNames:
+          - "example.com"
+          - "*.example.com"
+      dns01:
+        digitalocean:
+          tokenSecretRef:
+            name: digitalocean-dns
+            key: access-token
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: digitalocean-dns
+  namespace: cert-manager
+data:
+  access-token: "YWRtaW4="

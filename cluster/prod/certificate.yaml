@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: example-com-wildcard-certificate
+  namespace: efb
+spec:
+  dnsNames:
+  - 'example.com'
+  - '*.example.com'
+  issuerRef:
+    group: cert-manager.io
+    kind: ClusterIssuer
+    name: letsencrypt-wildcard
+  secretName: wildcard-example-com-tls
