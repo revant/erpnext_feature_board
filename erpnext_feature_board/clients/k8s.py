@@ -260,6 +260,17 @@ def create_helm_release(improvement_name, site_name, site_password):
 			},
 		},
 	}
+
+	if not frappe.get_conf().get("developer_mode"):
+		image_pull_secrets = frappe.get_conf().get("container_push_secret", "regcred")
+		body["spec"]["values"]["ingress"]["tls"] = [
+			{
+				"secretName": image_pull_secrets,
+				"hosts": [site_name],
+			}
+		]
+		body["spec"]["values"]["imagePullSecrets"] = [{"name": image_pull_secrets}]
+
 	try:
 		res = crd.create_namespaced_custom_object(
 			"helm.fluxcd.io", "v1", get_namespace(), "helmreleases", body, pretty=True
