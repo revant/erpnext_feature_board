@@ -163,7 +163,7 @@ def process_rebuilding_improvements():
 			improvement.deployment_status = "Rebuild Error"
 			improvement.save()
 			frappe.db.commit()
-		elif status.get("status", {}).get("complete"):
+		elif status.get("status", {}).get("succeeded"):
 			improvement.deployment_status = "Rebuild Complete"
 			improvement.save()
 			delete_job(job_name)
@@ -188,7 +188,7 @@ def process_rebuild_complete_improvements():
 			improvement.deployment_status = "Upgrading Failed"
 			improvement.save()
 			frappe.db.commit()
-		elif status.get("status", {}).get("complete"):
+		elif status.get("status", {}).get("phase") == "Succeeded":
 			improvement.deployment_status = "Upgrading"
 			improvement.save()
 			frappe.db.commit()
