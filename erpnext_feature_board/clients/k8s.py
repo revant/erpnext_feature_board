@@ -67,6 +67,7 @@ def create_build_image_job(improvement_name, image_tag, git_repo, git_branch):
 		f"--build-arg=GIT_REPO={git_repo}",
 		f"--build-arg=IMAGE_TAG={image_tag}",
 		f"--build-arg=GIT_BRANCH={git_branch}",
+		f"--build-arg=FRAPPE_BRANCH={image_tag}",
 		f"--destination={get_container_registry()}/erpnext-nginx:{improvement_name}",
 	]
 
