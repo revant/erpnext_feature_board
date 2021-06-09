@@ -304,7 +304,7 @@ def update_helm_release(improvement_name):
 		"spec": {
 			"values": {
 				"migrateJob": {"enable": True, "backup": False},
-				migration_timestamp: "Migration",
+				"migration-timestamp": migration_timestamp,
 			},
 		},
 	}
@@ -505,4 +505,37 @@ def get_helm_release(improvement_name):
 		frappe.log_error(
 			out, "Exception: CustomObjectsApi->get_namespaced_custom_object"
 		)
+		return out
+
+
+def rollout_deployment(deployment_name):
+	load_config()
+	apps = client.AppsV1Api()
+	now = datetime.datetime.utcnow()
+	now = str(now.isoformat("T") + "Z")
+	body = {
+		"spec": {
+			"template": {
+				"metadata": {"annotations": {"kubectl.kubernetes.io/restartedAt": now}},
+			},
+		},
+	}
+	try:
+		res = apps.patch_namespaced_deployment(
+			deployment_name,
+			get_namespace(),
+			body,
+		)
+		return to_dict(res)
+	except (ApiException, Exception) as e:
+		out = {
+			"error": e,
+			"function_name": "rollout_deployment",
+			"params": {"deployment_name": deployment_name},
+		}
+		reason = getattr(e, "reason", None)
+		if reason:
+			out["reason"] = reason
+
+		frappe.log_error(out, "Exception: AppsV1Api->patch_namespaced_deployment")
 		return out

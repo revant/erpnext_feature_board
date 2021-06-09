@@ -10,6 +10,7 @@ from erpnext_feature_board.clients.k8s import (
 	get_helm_release,
 	get_job_status,
 	get_namespace,
+	rollout_deployment,
 	update_helm_release,
 )
 
@@ -181,8 +182,15 @@ def process_rebuild_complete_improvements():
 			filters={"deployment_status": "Rebuild Complete"},
 			order_by="modified asc",
 		)
+		improvement_name = improvement.name.lower()
+		status = update_helm_release(improvement_name)
 
-		status = update_helm_release(improvement.name.lower())
+		rollout_deployment(f"{get_namespace()}-{improvement_name}-erpnext-erpnext")
+		rollout_deployment(f"{get_namespace()}-{improvement_name}-erpnext-scheduler")
+		rollout_deployment(f"{get_namespace()}-{improvement_name}-erpnext-socketio")
+		rollout_deployment(f"{get_namespace()}-{improvement_name}-erpnext-worker-d")
+		rollout_deployment(f"{get_namespace()}-{improvement_name}-erpnext-worker-s")
+		rollout_deployment(f"{get_namespace()}-{improvement_name}-erpnext-worker-d")
 
 		if status.get("error"):
 			improvement.deployment_status = "Upgrading Failed"
