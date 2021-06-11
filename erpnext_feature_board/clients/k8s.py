@@ -2,6 +2,9 @@ import datetime
 import time
 
 import frappe
+from erpnext_feature_board.erpnext_feature_board.doctype.improvement.improvement import (
+	Improvement,
+)
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 
@@ -40,9 +43,9 @@ def get_namespace():
 	return frappe.get_conf().get("kubernetes_namespace", "efb")
 
 
-def create_build_image_job(improvement_name, image_tag, git_repo, git_branch):
+def create_build_image_job(improvement: Improvement, image_tag, git_repo, git_branch):
 	load_config()
-	job_name = f"build-{improvement_name}".lower()  # only lowercase only allowed
+	job_name = f"build-{improvement.name}".lower()  # only lowercase only allowed
 	batch_v1_api = client.BatchV1Api()
 	body = client.V1Job(api_version="batch/v1", kind="Job")
 	body.metadata = client.V1ObjectMeta(
@@ -53,22 +56,27 @@ def create_build_image_job(improvement_name, image_tag, git_repo, git_branch):
 	volume_mounts = None
 	volumes = None
 	host_aliases = None
+	app = improvement.repository.split("/")[-1]
+
+	if ".git" in app:
+		app = app.replace(".git", "")
+
 	worker_args = [
-		"--dockerfile=build/erpnext-worker/Dockerfile",
+		f"--dockerfile=build/{app}-worker/Dockerfile",
 		"--context=git://github.com/frappe/frappe_docker.git",
 		f"--build-arg=GIT_REPO={git_repo}",
 		f"--build-arg=IMAGE_TAG={image_tag}",
 		f"--build-arg=GIT_BRANCH={git_branch}",
-		f"--destination={get_container_registry()}/erpnext-worker:{improvement_name}",
+		f"--destination={get_container_registry()}/{app}-worker:{improvement.name}",
 	]
 	nginx_args = [
-		"--dockerfile=build/erpnext-nginx/Dockerfile",
+		f"--dockerfile=build/{app}-nginx/Dockerfile",
 		"--context=git://github.com/frappe/frappe_docker.git",
 		f"--build-arg=GIT_REPO={git_repo}",
 		f"--build-arg=IMAGE_TAG={image_tag}",
 		f"--build-arg=GIT_BRANCH={git_branch}",
 		f"--build-arg=FRAPPE_BRANCH={image_tag}",
-		f"--destination={get_container_registry()}/erpnext-nginx:{improvement_name}",
+		f"--destination={get_container_registry()}/{app}-nginx:{improvement.name}",
 	]
 
 	if frappe.get_conf().get("developer_mode"):
@@ -148,7 +156,7 @@ def create_build_image_job(improvement_name, image_tag, git_repo, git_branch):
 			"error": e,
 			"function_name": "create_build_image_job",
 			"params": {
-				"improvement_name": improvement_name,
+				"improvement_name": improvement.name,
 				"image_tag": image_tag,
 				"git_repo": git_repo,
 				"git_branch": git_branch,
@@ -183,7 +191,7 @@ def get_job_status(job_name):
 		return out
 
 
-def create_helm_release(improvement_name, site_name, site_password):
+def create_helm_release(improvement: Improvement, site_name, site_password):
 	db_root_user = frappe.get_conf().get("db_root_user", "root")
 	db_root_password = frappe.get_conf().get("db_root_password", "admin")
 	mariadb_host = frappe.get_conf().get(
@@ -198,15 +206,24 @@ def create_helm_release(improvement_name, site_name, site_password):
 	redis_socketio_host = frappe.get_conf().get(
 		"redis_socketio_host", "redis-master.redis.svc.cluster.local:6379/2"
 	)
-	install_apps = frappe.get_conf().get("install_apps", "erpnext")
+
 	load_config()
 	crd = client.CustomObjectsApi()
+
+	app = improvement.repository.split("/")[-1]
+	if ".git" in app:
+		app = app.replace(".git", "")
+
+	install_apps = None
+	if app == "erpnext":
+		install_apps = frappe.get_conf().get("install_apps", "erpnext")
+
 	body = {
 		"kind": "HelmRelease",
 		"apiVersion": "helm.fluxcd.io/v1",
 		"metadata": client.V1ObjectMeta(
 			namespace=get_namespace(),
-			name=improvement_name.lower(),
+			name=improvement.name.lower(),
 		),
 		"spec": {
 			"chart": {
@@ -217,13 +234,13 @@ def create_helm_release(improvement_name, site_name, site_password):
 			},
 			"values": {
 				"nginxImage": {
-					"repository": f"{get_container_registry()}/erpnext-nginx",
-					"tag": improvement_name,
+					"repository": f"{get_container_registry()}/{app}-nginx",
+					"tag": improvement.name,
 					"pullPolicy": "Always",
 				},
 				"pythonImage": {
-					"repository": f"{get_container_registry()}/erpnext-worker",
-					"tag": improvement_name,
+					"repository": f"{get_container_registry()}/{app}-worker",
+					"tag": improvement.name,
 					"pullPolicy": "Always",
 				},
 				"mariadbHost": mariadb_host,
@@ -284,7 +301,7 @@ def create_helm_release(improvement_name, site_name, site_password):
 		out = {
 			"error": e,
 			"function_name": "create_helm_release",
-			"params": {"improvement_name": improvement_name},
+			"params": {"improvement": improvement.as_dict()},
 		}
 		reason = getattr(e, "reason")
 		if reason:
@@ -357,105 +374,6 @@ def delete_helm_release(improvement_name):
 		frappe.log_error(
 			out, "Exception: CustomObjectsApi->delete_namespaced_custom_object"
 		)
-		return out
-
-
-def start_job_to_delete_improvement_site_images(improvement_name):
-	load_config()
-	job_name = f"{improvement_name}-delete-images".lower()
-	volume_mounts = [
-		client.V1VolumeMount(
-			mount_path="/root/.docker",
-			name="container-config",
-		)
-	]
-	volumes = [
-		client.V1Volume(
-			name="container-config",
-			projected=client.V1ProjectedVolumeSource(
-				sources=[
-					client.V1VolumeProjection(
-						secret=client.V1SecretProjection(
-							name=frappe.get_conf().get(
-								"container_push_secret", "regcred"
-							),
-							items=[
-								client.V1KeyToPath(
-									key=".dockerconfigjson",
-									path="config.json",
-								)
-							],
-						)
-					)
-				]
-			),
-		)
-	]
-	host_aliases = None
-	env = None
-	batch_v1_api = client.BatchV1Api()
-	body = client.V1Job(api_version="batch/v1", kind="Job")
-	body.metadata = client.V1ObjectMeta(
-		namespace=get_namespace(),
-		name=job_name,
-	)
-	registry = "https://" + get_container_registry()
-	if frappe.get_conf().get("developer_mode"):
-		registry = "http://" + get_container_registry()
-		env = [
-			client.V1EnvVar(name="INSECURE_REGISTRY", value="true"),
-			client.V1EnvVar(name="TRACE", value="true"),
-		]
-		host_aliases = [
-			client.V1HostAlias(
-				ip=frappe.get_conf().get("docker_host_ip", "172.17.0.1"),
-				hostnames=["registry.localhost"],
-			)
-		]
-
-	body.status = client.V1JobStatus()
-	body.spec = client.V1JobSpec(
-		template=client.V1PodTemplateSpec(
-			spec=client.V1PodSpec(
-				security_context=client.V1PodSecurityContext(
-					supplemental_groups=[1000]
-				),
-				containers=[
-					client.V1Container(
-						name="delete-images",
-						image="byrnedo/reg-tool:latest",
-						command=["bash", "-c"],
-						args=[
-							f"""/docker_reg_tool {registry} delete erpnext-worker {improvement_name};
-							/docker_reg_tool {registry} delete erpnext-nginx {improvement_name};"""
-						],
-						env=env,
-						volume_mounts=volume_mounts,
-					),
-				],
-				restart_policy="Never",
-				volumes=volumes,
-				host_aliases=host_aliases,
-			)
-		)
-	)
-
-	try:
-		api_response = batch_v1_api.create_namespaced_job(
-			get_namespace(), body, pretty=True
-		)
-		return to_dict(api_response)
-	except (ApiException, Exception) as e:
-		out = {
-			"error": e,
-			"function_name": "start_job_to_delete_improvement_site_images",
-			"params": {"improvement_name": improvement_name},
-		}
-		reason = getattr(e, "reason")
-		if reason:
-			out["reason"] = reason
-
-		frappe.log_error(out, "Exception: BatchV1Api->create_namespaced_job")
 		return out
 
 
