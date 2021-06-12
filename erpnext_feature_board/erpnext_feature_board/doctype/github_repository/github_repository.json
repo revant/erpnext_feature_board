@@ -7,6 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "repository_url",
+  "sb_auth",
   "access_token"
  ],
  "fields": [
@@ -22,11 +23,16 @@
    "label": "Repository URL",
    "reqd": 1,
    "unique": 1
+  },
+  {
+   "fieldname": "sb_auth",
+   "fieldtype": "Section Break",
+   "label": "Authentication"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-06-09 18:48:15.078985",
+ "modified": "2021-06-12 22:20:01.286780",
  "modified_by": "Administrator",
  "module": "ERPNext Feature Board",
  "name": "Github Repository",
@@ -55,6 +61,5 @@
   }
  ],
  "sort_field": "modified",
- "sort_order": "DESC",
- "track_changes": 1
+ "sort_order": "DESC"
 }

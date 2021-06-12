@@ -1,12 +1,15 @@
 import datetime
 import time
+from typing import TYPE_CHECKING
 
 import frappe
-from erpnext_feature_board.erpnext_feature_board.doctype.improvement.improvement import (
-	Improvement,
-)
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
+
+if TYPE_CHECKING:
+	from erpnext_feature_board.erpnext_feature_board.doctype.improvement.improvement import (
+		Improvement,
+	)
 
 
 def get_container_registry():
@@ -43,7 +46,7 @@ def get_namespace():
 	return frappe.get_conf().get("kubernetes_namespace", "efb")
 
 
-def create_build_image_job(improvement: Improvement, image_tag, git_repo, git_branch):
+def create_build_image_job(improvement: "Improvement", image_tag, git_repo, git_branch):
 	load_config()
 	job_name = f"build-{improvement.name}".lower()  # only lowercase only allowed
 	batch_v1_api = client.BatchV1Api()
@@ -56,27 +59,23 @@ def create_build_image_job(improvement: Improvement, image_tag, git_repo, git_br
 	volume_mounts = None
 	volumes = None
 	host_aliases = None
-	app = improvement.repository.split("/")[-1]
-
-	if ".git" in app:
-		app = app.replace(".git", "")
 
 	worker_args = [
-		f"--dockerfile=build/{app}-worker/Dockerfile",
+		f"--dockerfile=build/{improvement.app_name}-worker/Dockerfile",
 		"--context=git://github.com/frappe/frappe_docker.git",
 		f"--build-arg=GIT_REPO={git_repo}",
 		f"--build-arg=IMAGE_TAG={image_tag}",
 		f"--build-arg=GIT_BRANCH={git_branch}",
-		f"--destination={get_container_registry()}/{app}-worker:{improvement.name}",
+		f"--destination={get_container_registry()}/{improvement.app_name}-worker:{improvement.name}",
 	]
 	nginx_args = [
-		f"--dockerfile=build/{app}-nginx/Dockerfile",
+		f"--dockerfile=build/{improvement.app_name}-nginx/Dockerfile",
 		"--context=git://github.com/frappe/frappe_docker.git",
 		f"--build-arg=GIT_REPO={git_repo}",
 		f"--build-arg=IMAGE_TAG={image_tag}",
 		f"--build-arg=GIT_BRANCH={git_branch}",
 		f"--build-arg=FRAPPE_BRANCH={image_tag}",
-		f"--destination={get_container_registry()}/{app}-nginx:{improvement.name}",
+		f"--destination={get_container_registry()}/{improvement.app_name}-nginx:{improvement.name}",
 	]
 
 	if frappe.get_conf().get("developer_mode"):
@@ -191,7 +190,7 @@ def get_job_status(job_name):
 		return out
 
 
-def create_helm_release(improvement: Improvement, site_name, site_password):
+def create_helm_release(improvement: "Improvement", site_name, site_password):
 	db_root_user = frappe.get_conf().get("db_root_user", "root")
 	db_root_password = frappe.get_conf().get("db_root_password", "admin")
 	mariadb_host = frappe.get_conf().get(
@@ -210,12 +209,8 @@ def create_helm_release(improvement: Improvement, site_name, site_password):
 	load_config()
 	crd = client.CustomObjectsApi()
 
-	app = improvement.repository.split("/")[-1]
-	if ".git" in app:
-		app = app.replace(".git", "")
-
 	install_apps = None
-	if app == "erpnext":
+	if improvement.app_name == "erpnext":
 		install_apps = frappe.get_conf().get("install_apps", "erpnext")
 
 	body = {
@@ -234,12 +229,12 @@ def create_helm_release(improvement: Improvement, site_name, site_password):
 			},
 			"values": {
 				"nginxImage": {
-					"repository": f"{get_container_registry()}/{app}-nginx",
+					"repository": f"{get_container_registry()}/{improvement.app_name}-nginx",
 					"tag": improvement.name,
 					"pullPolicy": "Always",
 				},
 				"pythonImage": {
-					"repository": f"{get_container_registry()}/{app}-worker",
+					"repository": f"{get_container_registry()}/{improvement.app_name}-worker",
 					"tag": improvement.name,
 					"pullPolicy": "Always",
 				},

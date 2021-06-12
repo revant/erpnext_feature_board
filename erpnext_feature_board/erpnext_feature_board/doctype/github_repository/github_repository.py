@@ -89,6 +89,7 @@ def update_improvement(pull_request: "PullRequest", repository: str):
 		improvement_doc = frappe.get_doc("Improvement", improvement)
 
 	improvement_doc.update({
+		"app_name": pull_request.head.repo.name,
 		"description": markdown(pull_request.body),
 		"fork_url": pull_request.head.repo.html_url,
 		"number": pull_request.number,
