@@ -83,7 +83,7 @@ def process_build_complete_improvements():
 		improvement.site_url = "https://" + site_name
 		improvement.site_admin_password = site_password
 
-		status = create_helm_release(improvement.name, site_name, site_password)
+		status = create_helm_release(improvement, site_name, site_password)
 
 		if status.get("metadata", {}).get("name") == improvement.name.lower():
 			improvement.deployment_status = "Release Queued"
@@ -291,7 +291,7 @@ def create_build_job(improvement):
 		image_tag = improvement.target_branch.rstrip("-hotfix")
 
 	res = create_build_image_job(
-		improvement_name=improvement.name,
+		improvement=improvement,
 		image_tag=image_tag,
 		git_repo=improvement.fork_url,
 		git_branch=improvement.source_branch,
