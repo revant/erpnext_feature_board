@@ -1,0 +1,73 @@
+{
+ "actions": [],
+ "creation": "2021-06-13 15:00:50.487696",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "enable_discourse",
+  "sb_discourse",
+  "discourse_url",
+  "cb_discourse",
+  "discourse_api_username",
+  "discourse_api_key"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "fieldname": "enable_discourse",
+   "fieldtype": "Check",
+   "label": "Enable Discourse"
+  },
+  {
+   "depends_on": "eval:doc.enable_discourse",
+   "fieldname": "sb_discourse",
+   "fieldtype": "Section Break",
+   "label": "Discourse Settings"
+  },
+  {
+   "fieldname": "discourse_url",
+   "fieldtype": "Data",
+   "label": "Discourse URL",
+   "mandatory_depends_on": "eval:doc.enable_discourse"
+  },
+  {
+   "fieldname": "discourse_api_key",
+   "fieldtype": "Password",
+   "label": "Discourse API Key",
+   "mandatory_depends_on": "eval:doc.enable_discourse"
+  },
+  {
+   "fieldname": "cb_discourse",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "discourse_api_username",
+   "fieldtype": "Data",
+   "label": "Discourse API Username",
+   "mandatory_depends_on": "eval:doc.enable_discourse"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2021-06-13 15:03:25.512345",
+ "modified_by": "Administrator",
+ "module": "ERPNext Feature Board",
+ "name": "Feature Board Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}
