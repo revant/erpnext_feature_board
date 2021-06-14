@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import requests
+import time
 
 import frappe
 from frappe import _
@@ -19,50 +20,88 @@ class Improvement(WebsiteGenerator):
 
 	def validate(self):
 		if self.deployment_status == "Ready":
-			self.sync_discourse_post()
+			frappe.enqueue(method=self.sync_discourse_post)
 
 	def sync_discourse_post(self):
 		settings = frappe.get_single("Feature Board Settings")
 		if not settings.enable_discourse:
 			return
 
-		discourse_url = settings.discourse_url
-		discourse_api_username = settings.discourse_api_username
-		discourse_api_key = settings.get_password("discourse_api_key")
-		discourse_post_title = f"[Bot] [Discussion] [PR #{self.number}] {self.title}"
-		discourse_post_body = f"<p>Pull Request URL: <a href='{self.pull_request_url}'>{self.pull_request_url}</a><br>Testing Site URL: {self.site_url or self.deployment_status}<p>"
+		pull_request_link = f"<a href='{self.pull_request_url}'>{self.pull_request_url}</a>"
+		testing_site_link = f"<a href='{self.site_url}'>{self.site_url}</a>" if self.site_url else self.deployment_status
+		discourse_post_body = f"""<p>
+			<strong>Testing Site URL</strong>: {testing_site_link}<br><br>
+			<strong>Pull Request URL</strong>: {pull_request_link}<br>
+			<strong>Pull Request Title</strong>: {self.title}<br>
+			<strong>Pull Request Description</strong>: {self.description}
+		"""
 
+		frappe.log_error(discourse_post_body)
+
+		if not self.post_id:
+			self.create_discourse_post(settings, discourse_post_body)
+		else:
+			self.update_discourse_post(settings, discourse_post_body)
+
+	def create_discourse_post(self, settings, discourse_post_body, retry=3):
 		headers = {
-			"Api-Key": discourse_api_key,
-			"Api-Username": discourse_api_username,
+			"Api-Key": settings.get_password("discourse_api_key"),
+			"Api-Username": settings.discourse_api_username,
 			"Accept": "application/json"
 		}
 
-		if not self.topic_id:
-			# create a new post
-			data = {
-				"title": discourse_post_title,
+		discourse_post_title = f"[Bot] [Discussion] [PR #{self.number}] {self.title}"
+
+		data = {
+			"title": discourse_post_title,
+			"raw": discourse_post_body,
+			"created_at": get_datetime().isoformat()
+		}
+
+		while retry > 0:
+			try:
+				response = requests.post(
+					settings.discourse_url + DISCOURSE_CREATE_TOPIC_ENDPOINT,
+					headers=headers,
+					data=data
+				)
+			except Exception as e:
+				frappe.log_error(_(e))
+				time.sleep(5)
+				self.create_discourse_post(settings, discourse_post_body, retry=retry - 1)
+			else:
+				if response.ok:
+					response_data = response.json()
+					self.topic_id = response_data.get("topic_id")
+					self.post_id = response_data.get("id")
+					self.topic_slug = response_data.get("topic_slug")
+				break
+
+	def update_discourse_post(self, settings, discourse_post_body, retry=3):
+		headers = {
+			"Api-Key": settings.get_password("discourse_api_key"),
+			"Api-Username": settings.discourse_api_username,
+			"Accept": "application/json"
+		}
+
+		data = {
+			"post": {
 				"raw": discourse_post_body,
-				"created_at": get_datetime().isoformat()
+				"edit_reason": "Updating build details via API"
 			}
+		}
 
-			response = requests.post(discourse_url + DISCOURSE_CREATE_TOPIC_ENDPOINT, headers=headers, data=data)
-			if response.ok:
-				response_data = response.json()
-				self.topic_id = response_data.get("topic_id")
-				self.post_id = response_data.get("id")
-				self.topic_slug = response_data.get("topic_slug")
-		else:
-			# update an existing post
-			data = {
-				"post": {
-					"raw": discourse_post_body,
-					"edit_reason": "Updating build details via API"
-				}
-			}
+		formatted_endpoint = DISCOURSE_UPDATE_TOPIC_ENDPOINT.format(id=self.post_id)
 
-			formatted_endpoint = DISCOURSE_UPDATE_TOPIC_ENDPOINT.format(id=self.post_id)
-			requests.put(discourse_url + formatted_endpoint, headers=headers, json=data)
+		while retry > 0:
+			try:
+				requests.put(settings.discourse_url + formatted_endpoint, headers=headers, json=data)
+			except Exception as e:
+				frappe.log_error(_(e))
+				time.sleep(5)
+				self.update_discourse_post(settings, discourse_post_body, retry=retry - 1)
+			else:
+				break
 
 
 @frappe.whitelist(methods=["POST"])
