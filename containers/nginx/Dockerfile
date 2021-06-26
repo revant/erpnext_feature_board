@@ -1,5 +1,6 @@
 ARG FRAPPE_BRANCH=develop
 FROM node:14-buster
+ARG FRAPPE_BRANCH=develop
 
 COPY containers/nginx/install_frappe.sh /install_frappe
 COPY containers/nginx/prepare_production.sh /prepare_production
