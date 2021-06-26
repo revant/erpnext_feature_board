@@ -1,0 +1,3 @@
+{
+  "/api": { "target": "http://efb.localhost:8000", "secure": false, "logLevel": "debug", "changeOrigin": true }
+}

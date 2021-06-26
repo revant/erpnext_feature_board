@@ -17,8 +17,13 @@ app_license = "MIT"
 # app_include_js = "/assets/erpnext_feature_board/js/erpnext_feature_board.js"
 
 # include js, css files in header of web template
-# web_include_css = "/assets/erpnext_feature_board/css/erpnext_feature_board.css"
-# web_include_js = "/assets/erpnext_feature_board/js/erpnext_feature_board.js"
+web_include_css = [
+	"/assets/erpnext_feature_board/css/webcomponents.css",
+	"https://fonts.googleapis.com/icon?family=Material+Icons&display=block",
+]
+web_include_js = [
+	"/assets/erpnext_feature_board/js/webcomponents.js",
+]
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "erpnext_feature_board/public/scss/website"
@@ -40,7 +45,7 @@ app_license = "MIT"
 # ----------
 
 # application home page (will override Website Settings)
-# home_page = "login"
+home_page = "improvements"
 
 # website user home page (by Role)
 # role_home_page = {

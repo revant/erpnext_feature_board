@@ -1,0 +1,19 @@
+.table-container {
+  max-height: calc(100vh - 230px);
+  max-width: 100%;
+  overflow: auto;
+}
+
+.mat-row, .mat-header-row {
+  min-width: 2800px;
+  width: 100%;
+}
+
+.mat-column-name {
+  flex: none;
+  width: 10em;
+}
+
+.mat-column-productName {
+  flex: 0 0 10%;
+}

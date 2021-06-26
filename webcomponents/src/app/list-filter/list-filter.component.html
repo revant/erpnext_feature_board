@@ -1,0 +1,94 @@
+<mat-dialog-content>
+  <mat-form-field class="full-width">
+    <input disabled matInput />
+    <button mat-button matSuffix (click)="addFilter()">
+      <mat-icon>add</mat-icon>
+    </button>
+  </mat-form-field>
+
+  <form [formGroup]="filtersForm">
+    <table
+      mat-table
+      #table
+      [dataSource]="dataSource"
+      formArrayName="filters"
+      class="full-width"
+    >
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; let i = index; columns: displayedColumns"
+      ></tr>
+
+      <ng-container matColumnDef="field">
+        <th mat-header-cell *matHeaderCellDef>Field</th>
+        <td
+          class="field"
+          mat-cell
+          *matCellDef="let row; let index = index"
+          [formGroupName]="index"
+        >
+          <mat-select formControlName="field" placeholder="Field" class="">
+            <mat-option *ngFor="let field of fields" [value]="field">
+              {{ field }}
+            </mat-option>
+          </mat-select>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="operator">
+        <th mat-header-cell *matHeaderCellDef>Operator</th>
+        <td
+          class="operator"
+          mat-cell
+          *matCellDef="let row; let index = index"
+          [formGroupName]="index"
+        >
+          <mat-select formControlName="operator" placeholder="Operator">
+            <mat-option *ngFor="let operator of operators" [value]="operator">
+              {{ operator }}
+            </mat-option>
+          </mat-select>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="value">
+        <th mat-header-cell *matHeaderCellDef>Value</th>
+        <td
+          class="value"
+          mat-cell
+          *matCellDef="let row; let index = index"
+          [formGroupName]="index"
+        >
+          <mat-label></mat-label>
+          <input matInput formControlName="value" placeholder="value" />
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="clear">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td
+          class="clear"
+          mat-cell
+          *matCellDef="let row; let index = index"
+          [formGroupName]="index"
+        >
+          <button
+            class="align-right"
+            mat-button
+            matSuffix
+            (click)="clearFilters(index)"
+          >
+            <mat-icon>clear</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+    </table>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-raised-button type="button" (click)="applyFilter()">Apply</button>
+  <button mat-raised-button color="warn" (click)="clearFilters()">
+    Clear All
+  </button>
+</mat-dialog-actions>

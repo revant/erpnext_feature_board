@@ -1,0 +1,32 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ improvementName }}</mat-card-title>
+    <mat-card-subtitle>{{ prNumber }}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="form">
+      <div fxLayout="row" fxLayoutGap="1em">
+        <mat-form-field fxFlex="50%">
+          <input
+            matInput
+            formControlName="repository"
+            placeholder="Repository"/>
+        </mat-form-field>
+        <mat-form-field fxFlex="50%">
+          <input
+            matInput
+            formControlName="siteUrl"
+            placeholder="Site URL"/>
+        </mat-form-field>
+      </div>
+      <div fxLayout="column" fxLayoutGap="1em">
+        <p caption>Description</p>
+        <div
+          matInput
+          [innerHTML]="prDescription"
+          placeholder="Description">
+      </div>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

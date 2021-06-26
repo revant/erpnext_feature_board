@@ -1,0 +1,8 @@
+{
+  "js/webcomponents.js": [
+    "public/js/webcomponents.js"
+  ],
+  "css/webcomponents.css": [
+    "public/css/webcomponents.css"
+  ]
+}

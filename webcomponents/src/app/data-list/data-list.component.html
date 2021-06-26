@@ -1,0 +1,32 @@
+<div class="loading-shade" *ngIf="dataSource.loading$ | async">
+  <mat-progress-bar *ngIf="dataSource.loading$ | async" mode="indeterminate"></mat-progress-bar>
+</div>
+<div class="card-container">
+  <mat-form-field class="full-width">
+    <input disabled matInput>
+    <button mat-button matSuffix (click)="getUpdate()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+    <button mat-button matSuffix (click)="setFilter()">
+      <mat-icon>filter_list</mat-icon>
+    </button>
+  </mat-form-field>
+  <div class="table-container">
+    <table mat-table class="full-width" [dataSource]="dataSource" matSort (matSortChange)="getUpdate()" aria-label="Elements">
+      <ng-container *ngFor="let col of fields; index as i;" matColumnDef="{{ col }}">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="{{ col }}">{{ snakeToTitleCase(col) }}</th>
+        <td mat-cell *matCellDef="let row">
+          <a *ngIf="col=='name'" href="{{ kebabCase(doctype) + '?name=' + row[col] }}">{{row[col]}}</a>
+          <span *ngIf="col!=='name'" >{{row[col]}}</span>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="fields; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: fields;"></tr>
+    </table>
+  </div>
+  <mat-paginator #paginator
+    (page)="getUpdate($event)"
+    [length]="dataSource.length"
+    [pageSizeOptions]="[10, 50, 100, 500]">
+  </mat-paginator>
+</div>
