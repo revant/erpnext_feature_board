@@ -1,0 +1,116 @@
+{
+ "actions": [],
+ "creation": "2021-06-27 21:18:03.926302",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "user",
+  "improvement",
+  "request_type",
+  "cb_review_request",
+  "request_status",
+  "request_reject_reason",
+  "test_user_name",
+  "test_user_password"
+ ],
+ "fields": [
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "User",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "improvement",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Improvement",
+   "options": "Improvement",
+   "reqd": 1
+  },
+  {
+   "fieldname": "request_type",
+   "fieldtype": "Select",
+   "label": "Request Type",
+   "options": "\nAdd Testing User\nBuild\nUpgrade\nDelete",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cb_review_request",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:!doc.__islocal",
+   "fieldname": "request_status",
+   "fieldtype": "Select",
+   "label": "Request Status",
+   "options": "\nOpen\nRejected\nApproved",
+   "read_only": 1
+  },
+  {
+   "fieldname": "request_reject_reason",
+   "fieldtype": "Data",
+   "label": "Request Reject Reason",
+   "read_only": 1
+  },
+  {
+   "fieldname": "test_user_name",
+   "fieldtype": "Data",
+   "label": "Test User Username",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "test_user_password",
+   "fieldtype": "Password",
+   "label": "Test User Password",
+   "permlevel": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-06-27 22:21:14.919734",
+ "modified_by": "Administrator",
+ "module": "ERPNext Feature Board",
+ "name": "Review Request",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "permlevel": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "All",
+   "share": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}
