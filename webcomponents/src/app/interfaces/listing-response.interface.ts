@@ -1,4 +1,4 @@
-import { ListingData } from "./listing-data.interface";
+import { ListingData } from './listing-data.interface';
 
 export interface ListResponse {
   docs: ListingData[];

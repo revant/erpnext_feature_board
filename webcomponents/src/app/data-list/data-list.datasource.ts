@@ -4,6 +4,7 @@ import { map, catchError, finalize } from 'rxjs/operators';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { ListingData } from '../interfaces/listing-data.interface';
 import { ListResponse } from '../interfaces/listing-response.interface';
+import { MatPaginator } from '@angular/material/paginator';
 
 export class ListingDataSource extends DataSource<ListingData> {
   data: ListingData[] = [];
@@ -11,13 +12,14 @@ export class ListingDataSource extends DataSource<ListingData> {
   offset: number = 0;
   itemSubject = new BehaviorSubject<ListingData[]>([]);
   loadingSubject = new BehaviorSubject<boolean>(false);
+  paginator?: MatPaginator;
 
   loading$ = this.loadingSubject.asObservable();
 
   constructor(
     private readonly model: string,
     private readonly fields: string[],
-    private readonly listingService: ListingService,
+    private readonly listingService: ListingService
   ) {
     super();
   }
@@ -35,7 +37,7 @@ export class ListingDataSource extends DataSource<ListingData> {
     filter: string[] = [],
     sortOrder = 'modified asc',
     pageIndex = 0,
-    pageSize = 10,
+    pageSize = 10
   ) {
     this.loadingSubject.next(true);
     this.listingService
@@ -45,7 +47,7 @@ export class ListingDataSource extends DataSource<ListingData> {
         sortOrder,
         pageIndex,
         this.fields,
-        pageSize,
+        pageSize
       )
       .pipe(
         map((res: ListResponse) => {
@@ -55,8 +57,8 @@ export class ListingDataSource extends DataSource<ListingData> {
           return res.docs;
         }),
         catchError(() => of([])),
-        finalize(() => this.loadingSubject.next(false)),
+        finalize(() => this.loadingSubject.next(false))
       )
-      .subscribe(items => this.itemSubject.next(items));
+      .subscribe((items) => this.itemSubject.next(items));
   }
 }

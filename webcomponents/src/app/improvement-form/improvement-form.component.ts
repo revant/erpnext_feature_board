@@ -5,10 +5,10 @@ import { FormControl, FormGroup } from '@angular/forms';
 @Component({
   selector: 'app-improvement-form',
   templateUrl: './improvement-form.component.html',
-  styleUrls: ['./improvement-form.component.css']
+  styleUrls: ['./improvement-form.component.css'],
 })
 export class ImprovementFormComponent implements OnInit {
-  @Input('name') improvementName: string = '';
+  @Input() docname: string = '';
   prNumber = '';
   prDescription = '';
   form = new FormGroup({
@@ -22,11 +22,11 @@ export class ImprovementFormComponent implements OnInit {
     siteUrl: new FormControl(''),
   });
 
-  constructor(private readonly http: HttpClient) { }
+  constructor(private readonly http: HttpClient) {}
 
   ngOnInit() {
-    this.http.get<any>(`/api/resource/Improvement/${this.improvementName}`).subscribe({
-      next: res => {
+    this.http.get<any>(`/api/resource/Improvement/${this.docname}`).subscribe({
+      next: (res) => {
         const { data } = res;
         this.prNumber = data.number;
         this.form.controls.repository.setValue(data.repository);
@@ -34,8 +34,7 @@ export class ImprovementFormComponent implements OnInit {
         this.form.controls.siteUrl.setValue(data.site_url);
         this.form.disable();
       },
-      error: err => {},
-    })
+      error: (err) => {},
+    });
   }
-
 }

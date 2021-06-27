@@ -25,7 +25,7 @@ describe('DataListComponent', () => {
       fixture = TestBed.createComponent(DataListComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
-    }),
+    })
   );
 
   it('should create', () => {

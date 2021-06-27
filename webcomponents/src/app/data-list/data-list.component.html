@@ -16,7 +16,7 @@
       <ng-container *ngFor="let col of fields; index as i;" matColumnDef="{{ col }}">
         <th mat-header-cell *matHeaderCellDef mat-sort-header="{{ col }}">{{ snakeToTitleCase(col) }}</th>
         <td mat-cell *matCellDef="let row">
-          <a *ngIf="col=='name'" href="{{ kebabCase(doctype) + '?name=' + row[col] }}">{{row[col]}}</a>
+          <a *ngIf="col==='name'" href="{{ kebabCase(doctype) + '?name=' + row[col] }}">{{row[col]}}</a>
           <span *ngIf="col!=='name'" >{{row[col]}}</span>
         </td>
       </ng-container>

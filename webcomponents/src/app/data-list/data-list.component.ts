@@ -16,29 +16,33 @@ export class DataListComponent implements OnInit {
   @Input() fields = ['name', 'modified', 'owner', 'modified_by'];
   @ViewChild(MatPaginator, { static: true }) paginator?: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort?: MatSort;
-  dataSource = new ListingDataSource(this.doctype, this.fields, this.listingService);
+  dataSource = new ListingDataSource(
+    this.doctype,
+    this.fields,
+    this.listingService
+  );
   filters: string[] = [];
 
   constructor(
     private readonly listingService: ListingService,
-    private readonly dialog: MatDialog,
+    private readonly dialog: MatDialog
   ) {}
 
   ngOnInit() {
     this.dataSource = new ListingDataSource(
       this.doctype,
       this.fields,
-      this.listingService,
+      this.listingService
     );
     this.dataSource.loadItems();
   }
 
-  getUpdate(event?: { pageIndex: number, pageSize: number }) {
+  getUpdate(event?: { pageIndex: number; pageSize: number }) {
     this.dataSource?.loadItems(
       this.filters,
       `${this.sort?.active || 'modified'} ${this.sort?.direction || 'asc'}`,
       event?.pageIndex || this.paginator?.pageIndex,
-      event?.pageSize || this.paginator?.pageSize,
+      event?.pageSize || this.paginator?.pageSize
     );
   }
 
@@ -53,9 +57,10 @@ export class DataListComponent implements OnInit {
       height: '75%',
     });
 
-    dialogRef.afterClosed().subscribe(filter => {
+    dialogRef.afterClosed().subscribe((filter) => {
       this.filters = filter?.data;
       this.dataSource?.loadItems(this.filters);
+      this.paginator?.firstPage();
     });
   }
 
@@ -64,7 +69,7 @@ export class DataListComponent implements OnInit {
 
     return str
       .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
   }
 

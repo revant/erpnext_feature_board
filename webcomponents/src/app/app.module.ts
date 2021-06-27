@@ -1,4 +1,4 @@
-import { Injector, NgModule } from '@angular/core';
+import { DoBootstrap, Injector, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -34,27 +34,27 @@ import { FlexLayoutModule } from '@angular/flex-layout';
   ],
   providers: [],
 })
-export class AppModule {
+export class AppModule implements DoBootstrap {
   constructor(private injector: Injector) {}
 
   ngDoBootstrap() {
     const impList = createCustomElement(ImprovementListComponent, {
-      injector: this.injector
+      injector: this.injector,
     });
     customElements.define('improvement-list', impList);
 
     const impForm = createCustomElement(ImprovementFormComponent, {
-      injector: this.injector
+      injector: this.injector,
     });
     customElements.define('improvement-form', impForm);
 
     const reqList = createCustomElement(RequestListComponent, {
-      injector: this.injector
+      injector: this.injector,
     });
     customElements.define('request-list', reqList);
 
     const reqForm = createCustomElement(RequestFormComponent, {
-      injector: this.injector
+      injector: this.injector,
     });
     customElements.define('request-form', reqForm);
   }

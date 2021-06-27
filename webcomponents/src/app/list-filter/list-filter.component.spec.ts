@@ -32,7 +32,7 @@ describe('ListFilterComponent', () => {
       fixture = TestBed.createComponent(ListFilterComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
-    }),
+    })
   );
 
   it('should create', () => {

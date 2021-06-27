@@ -7,9 +7,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class ListingService {
-  constructor(
-    private readonly http: HttpClient,
-  ) { }
+  constructor(private readonly http: HttpClient) {}
 
   findModels(
     model: string,
@@ -17,41 +15,32 @@ export class ListingService {
     sortOrder = 'modified asc',
     pageNumber = 0,
     fields = ['name', 'owner', 'modified', 'modified_by'],
-    pageSize = 10,
+    pageSize = 10
   ): Observable<any> {
-    const blankFilters: any[] = [];
-    const url = `/api/resource/${model}`;
+    const url = `/api/method/erpnext_feature_board.www.improvements.get_improvements`;
     const headers = {};
     const offset = pageNumber * pageSize;
     const params = new HttpParams()
+      .set('doctype', 'Improvement')
       .set('limit_start', offset.toString())
       .set('limit_page_length', pageSize.toString())
       .set('fields', JSON.stringify(fields))
       .set('filters', JSON.stringify(filters))
       .set('order_by', sortOrder);
-    return this.http.get<{ data: unknown }>(url, { params, headers }).pipe(
-      switchMap(listRes => {
-        const countUrl = '/api/method/frappe.client.get_count';
-        const countParams = new HttpParams()
-          .set('doctype', model)
-          .set('filters', JSON.stringify(blankFilters));
-
-        return this.http
-          .get<any>(countUrl, {
-            headers,
-            params: countParams,
-          })
-          .pipe(
-            map(countRes => {
-              return {
-                docs: listRes.data,
-                offset,
-                length: countRes.message,
-              };
-            }),
-          );
-      }),
-    );
+    return this.http
+      .get<{ message: { docs: any[]; length: number } }>(url, {
+        params,
+        headers,
+      })
+      .pipe(
+        map((res) => {
+          return {
+            docs: res.message?.docs,
+            offset,
+            length: res.message?.length,
+          };
+        })
+      );
   }
 
   findModelsById(id: string, model: string) {

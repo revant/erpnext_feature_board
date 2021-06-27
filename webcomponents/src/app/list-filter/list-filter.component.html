@@ -1,6 +1,9 @@
 <mat-dialog-content>
   <mat-form-field class="full-width">
     <input disabled matInput />
+    <button mat-button matSuffix color="warn" (click)="clearFilters()">
+      Clear filters
+    </button>
     <button mat-button matSuffix (click)="addFilter()">
       <mat-icon>add</mat-icon>
     </button>
@@ -61,7 +64,7 @@
           [formGroupName]="index"
         >
           <mat-label></mat-label>
-          <input matInput formControlName="value" placeholder="value" />
+          <input matInput formControlName="value" placeholder="value" (keyup.enter)="applyFilter()"/>
         </td>
       </ng-container>
 
@@ -70,6 +73,7 @@
         <td
           class="clear"
           mat-cell
+          (click)="$event.stopPropagation()"
           *matCellDef="let row; let index = index"
           [formGroupName]="index"
         >
@@ -77,18 +81,14 @@
             class="align-right"
             mat-button
             matSuffix
-            (click)="clearFilters(index)"
           >
-            <mat-icon>clear</mat-icon>
+            <mat-icon (click)="clearFilters(index)">clear</mat-icon>
           </button>
         </td>
       </ng-container>
     </table>
   </form>
 </mat-dialog-content>
-<mat-dialog-actions align="end">
-  <button mat-raised-button type="button" (click)="applyFilter()">Apply</button>
-  <button mat-raised-button color="warn" (click)="clearFilters()">
-    Clear All
-  </button>
+<mat-dialog-actions fxLayout="row" fxLayoutGap="1em">
+  <button mat-button type="button" (click)="applyFilter()" cdkFocusInitial tabindex="0">Apply</button>
 </mat-dialog-actions>

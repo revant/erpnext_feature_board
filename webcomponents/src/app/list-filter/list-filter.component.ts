@@ -32,7 +32,7 @@ export class ListFilterComponent implements OnInit {
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: string[],
     public dialogRef: MatDialogRef<ListFilterComponent>,
-    private fb: FormBuilder,
+    private fb: FormBuilder
   ) {
     dialogRef.disableClose = true;
 
@@ -45,7 +45,7 @@ export class ListFilterComponent implements OnInit {
           field,
           operator,
           value,
-        }),
+        })
       );
     }
   }
@@ -61,7 +61,7 @@ export class ListFilterComponent implements OnInit {
     const control = this.filtersForm?.get('filters') as FormArray;
     this.filters?.forEach((element: { [key: string]: string }) => {
       control.push(
-        this.patchValues(element.field, element.operator, element.value),
+        this.patchValues(element.field, element.operator, element.value)
       );
     });
   }

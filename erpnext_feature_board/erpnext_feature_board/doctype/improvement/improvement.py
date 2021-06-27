@@ -156,3 +156,10 @@ def set_deployment_status(improvement_name, deployment_status):
 	improvement.deployment_status = deployment_status
 	improvement.save()
 	return improvement
+
+
+@frappe.whitelist()
+def get_site_password(improvement_name):
+	i = frappe.get_doc("Improvement", improvement_name)
+	if i.site_admin_password:
+		return i.get_password("site_admin_password")

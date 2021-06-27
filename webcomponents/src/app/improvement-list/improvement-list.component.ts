@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-improvement-list',
   templateUrl: './improvement-list.component.html',
-  styleUrls: ['./improvement-list.component.css']
+  styleUrls: ['./improvement-list.component.css'],
 })
-export class ImprovementListComponent implements OnInit {
+export class ImprovementListComponent {
   fields = [
     'name',
     'number',
@@ -16,13 +16,10 @@ export class ImprovementListComponent implements OnInit {
   ];
   filterFields = [
     'name',
-    'repository',
     'number',
+    'title',
+    'deployment_status',
+    'status',
+    'repository',
   ];
-
-  constructor() { }
-
-  ngOnInit(): void {
-  }
-
 }
