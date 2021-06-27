@@ -2,7 +2,7 @@
   <mat-form-field class="full-width">
     <input disabled matInput />
     <button mat-button matSuffix color="warn" (click)="clearFilters()">
-      Clear filters
+      Clear All
     </button>
     <button mat-button matSuffix (click)="addFilter()">
       <mat-icon>add</mat-icon>
@@ -33,7 +33,7 @@
         >
           <mat-select formControlName="field" placeholder="Field" class="">
             <mat-option *ngFor="let field of fields" [value]="field">
-              {{ field }}
+              {{ snakeToTitleCase(field) }}
             </mat-option>
           </mat-select>
         </td>
@@ -89,6 +89,6 @@
     </table>
   </form>
 </mat-dialog-content>
-<mat-dialog-actions fxLayout="row" fxLayoutGap="1em">
+<mat-dialog-actions fxLayout="row" fxLayoutGap="1em" fxLayoutAlign="end center">
   <button mat-button type="button" (click)="applyFilter()" cdkFocusInitial tabindex="0">Apply</button>
 </mat-dialog-actions>

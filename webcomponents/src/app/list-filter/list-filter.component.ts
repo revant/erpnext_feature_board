@@ -33,10 +33,12 @@ export class ListFilterComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: string[],
     public dialogRef: MatDialogRef<ListFilterComponent>,
     private fb: FormBuilder
-  ) {
-    dialogRef.disableClose = true;
+  ) {}
 
-    this.local_data = data;
+  ngOnInit() {
+    this.dialogRef.disableClose = true;
+
+    this.local_data = this.data;
     this.dataSource = new ListFilterDataSource();
     this.fields = this.local_data.field;
     if (this.local_data.filter?.length !== 0) {
@@ -48,9 +50,6 @@ export class ListFilterComponent implements OnInit {
         })
       );
     }
-  }
-
-  ngOnInit() {
     this.filtersForm = this.fb.group({ filters: this.rows });
     this.patch();
     this.dataSource = new ListFilterDataSource();
@@ -103,8 +102,22 @@ export class ListFilterComponent implements OnInit {
   applyFilter() {
     const filterObject = this.dataSource.subject.value;
     for (let i = 0; i < filterObject.length; i++) {
-      this.filters[i] = Object.values(filterObject[i].value as string);
+      const filtered = Object.values(filterObject[i].value as string).filter(
+        (f) => f !== null
+      );
+      if (filtered.length === 3) {
+        this.filters[i] = filtered;
+      }
     }
     this.dialogRef.close({ data: this.filters });
+  }
+
+  snakeToTitleCase(str: string) {
+    if (!str) return;
+
+    return str
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   }
 }

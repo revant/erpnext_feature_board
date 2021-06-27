@@ -160,6 +160,10 @@ def set_deployment_status(improvement_name, deployment_status):
 
 @frappe.whitelist()
 def get_site_password(improvement_name):
+	if "System Manager" not in frappe.get_roles(frappe.session.user):
+		frappe.throw(_("Insufficient Role"))
+		return None
+
 	i = frappe.get_doc("Improvement", improvement_name)
 	if i.site_admin_password:
 		return i.get_password("site_admin_password")

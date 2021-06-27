@@ -29,9 +29,11 @@ export class ImprovementFormComponent implements OnInit {
       next: (res) => {
         const { data } = res;
         this.prNumber = data.number;
-        this.form.controls.repository.setValue(data.repository);
         this.prDescription = data.description;
+        this.form.controls.title.setValue(data.title);
+        this.form.controls.repository.setValue(data.repository);
         this.form.controls.siteUrl.setValue(data.site_url);
+        this.form.controls.prUrl.setValue(data.pull_request_url);
         this.form.disable();
       },
       error: (err) => {},

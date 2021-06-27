@@ -6,26 +6,60 @@
   <mat-card-content>
     <form [formGroup]="form">
       <div fxLayout="row" fxLayoutGap="1em">
-        <mat-form-field fxFlex="50%">
+        <mat-form-field fxFlex="100%">
           <input
             matInput
+            formControlName="title"
+            placeholder="Title"/>
+        </mat-form-field>
+      </div>
+      <div fxLayout="row" fxLayoutGap="1em">
+        <mat-form-field fxFlex="50%">
+          <a href="{{ form.controls.repository.value }}" target="_blank">
+            <input
+            matInput
+            style="cursor: pointer;"
             formControlName="repository"
             placeholder="Repository"/>
+          </a>
         </mat-form-field>
         <mat-form-field fxFlex="50%">
-          <input
+          <a href="{{ form.controls.prUrl.value }}" target="_blank">
+            <input
+              style="cursor: pointer;"
+              matInput
+              formControlName="prUrl"
+              placeholder="Pull Request URL"/>
+          </a>
+        </mat-form-field>
+      </div>
+      <div fxLayout="row" fxLayoutGap="1em">
+        <mat-form-field fxFlex="50%" *ngIf="form.controls.siteUrl.value">
+          <a href="{{ form.controls.siteUrl.value }}" target="_blank">
+            <input
             matInput
+            style="cursor: pointer;"
             formControlName="siteUrl"
             placeholder="Site URL"/>
+          </a>
+        </mat-form-field>
+        <mat-form-field fxFlex="50%" *ngIf="form.controls.deploymentStatus.value">
+          <input
+            matInput
+            formControlName="deploymentStatus"
+            placeholder="Deployment Status"/>
         </mat-form-field>
       </div>
       <div fxLayout="column" fxLayoutGap="1em">
-        <p caption>Description</p>
-        <div
-          matInput
-          [innerHTML]="prDescription"
-          placeholder="Description">
-      </div>
+        <mat-accordion>
+          <mat-expansion-panel class="mat-elevation-z0">
+            <mat-expansion-panel-header>
+              <mat-panel-title>Description</mat-panel-title>
+              <mat-panel-description>Click for more</mat-panel-description>
+            </mat-expansion-panel-header>
+            <markdown ngPreserveWhitespaces [data]="prDescription"></markdown>
+          </mat-expansion-panel>
+        </mat-accordion>
       </div>
     </form>
   </mat-card-content>
