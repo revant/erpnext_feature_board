@@ -7,7 +7,7 @@ COPY containers/nginx/prepare_production.sh /prepare_production
 COPY  . /home/frappe/frappe-bench/apps/erpnext_feature_board
 
 # Install frappe
-RUN /install_frappe && \
+RUN /install_frappe ${FRAPPE_BRANCH} && \
   # Install app
   mkdir -p /home/frappe/frappe-bench/sites/assets && \
   cd /home/frappe/frappe-bench/apps/erpnext_feature_board && yarn && \
