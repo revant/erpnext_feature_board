@@ -14,7 +14,7 @@
  "is_standard": 1,
  "label": "Feature Board",
  "links": [],
- "modified": "2021-06-20 18:40:06.260870",
+ "modified": "2021-06-28 16:58:27.350401",
  "modified_by": "Administrator",
  "module": "ERPNext Feature Board",
  "name": "Feature Board",
@@ -32,6 +32,12 @@
    "doc_view": "List",
    "label": "Improvement",
    "link_to": "Improvement",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Review Request",
+   "link_to": "Review Request",
    "type": "DocType"
   },
   {

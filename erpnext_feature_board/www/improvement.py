@@ -10,6 +10,8 @@ def get_context(context):
 
 	if improvement_name:
 		context.query = improvement_name
+		context.user = frappe.session.user
+		context.csrf_token = frappe.local.session.data.csrf_token
 	else:
 		frappe.local.flags.redirect_location = '/improvements'
 		raise frappe.Redirect

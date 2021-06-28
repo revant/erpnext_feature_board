@@ -1,4 +1,11 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -12,8 +19,9 @@ import { ListingService } from './listing.service';
 })
 export class DataListComponent implements OnInit {
   @Input() filterFields = ['name'];
-  @Input() doctype = 'Activity Log';
+  @Input() doctype = '';
   @Input() fields = ['name', 'modified', 'owner', 'modified_by'];
+  @Input() showFilters = 'true';
   @ViewChild(MatPaginator, { static: true }) paginator?: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort?: MatSort;
   dataSource = new ListingDataSource(
@@ -21,7 +29,9 @@ export class DataListComponent implements OnInit {
     this.fields,
     this.listingService
   );
-  filters: string[] = [];
+  @Input() filters: string[][] = [];
+  @Input() linkName: boolean = true;
+  @Output() clickRow = new EventEmitter();
 
   constructor(
     private readonly listingService: ListingService,
@@ -29,12 +39,14 @@ export class DataListComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.listingService.changes.subscribe(() => this.getUpdate());
+
     this.dataSource = new ListingDataSource(
       this.doctype,
       this.fields,
       this.listingService
     );
-    this.dataSource.loadItems();
+    this.dataSource.loadItems(this.filters);
   }
 
   getUpdate(event?: { pageIndex: number; pageSize: number }) {
@@ -80,5 +92,9 @@ export class DataListComponent implements OnInit {
       .replace(/([a-z])([A-Z])/g, '$1-$2')
       .replace(/\s+/g, '-')
       .toLowerCase();
+  }
+
+  handleRowClick(row: any) {
+    this.clickRow.emit(row);
   }
 }

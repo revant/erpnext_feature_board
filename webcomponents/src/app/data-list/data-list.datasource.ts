@@ -34,7 +34,7 @@ export class ListingDataSource extends DataSource<ListingData> {
   }
 
   loadItems(
-    filter: string[] = [],
+    filter: string[][] = [],
     sortOrder = 'modified asc',
     pageIndex = 0,
     pageSize = 10

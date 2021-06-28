@@ -36,8 +36,6 @@ export class ListFilterComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.dialogRef.disableClose = true;
-
     this.local_data = this.data;
     this.dataSource = new ListFilterDataSource();
     this.fields = this.local_data.field;

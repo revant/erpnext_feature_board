@@ -1,6 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { ListingService } from '../data-list/listing.service';
+import { RequestFormComponent } from '../request-form/request-form.component';
 
 @Component({
   selector: 'app-improvement-form',
@@ -9,6 +12,9 @@ import { FormControl, FormGroup } from '@angular/forms';
 })
 export class ImprovementFormComponent implements OnInit {
   @Input() docname: string = '';
+  @Input() csrfToken: string = '';
+  @Input() user: string = 'Guest';
+  @Output() clickRow = new EventEmitter();
   prNumber = '';
   prDescription = '';
   form = new FormGroup({
@@ -21,10 +27,28 @@ export class ImprovementFormComponent implements OnInit {
     status: new FormControl(''),
     siteUrl: new FormControl(''),
   });
+  filters: string[][] = [];
+  fields = [
+    'request_type',
+    'request_status',
+    'request_reject_reason',
+    'test_user_name',
+    'test_user_password',
+    'name',
+  ];
+  linkName = false;
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly dialog: MatDialog,
+    private readonly listing: ListingService
+  ) {}
 
   ngOnInit() {
+    this.filters.push(
+      ['user', '=', this.user],
+      ['improvement', '=', this.docname]
+    );
     this.http.get<any>(`/api/resource/Improvement/${this.docname}`).subscribe({
       next: (res) => {
         const { data } = res;
@@ -38,5 +62,33 @@ export class ImprovementFormComponent implements OnInit {
       },
       error: (err) => {},
     });
+  }
+
+  requestToReview() {
+    const dialogRef = this.dialog.open(RequestFormComponent, { width: '75%' });
+
+    dialogRef.afterClosed().subscribe((data) => {
+      if (data?.data && data?.data?.length > 0) {
+        this.createRequest(data.data);
+      }
+    });
+  }
+
+  createRequest(requestType: string) {
+    this.http
+      .post(
+        '/api/resource/Review%20Request',
+        {
+          improvement: this.docname,
+          request_type: requestType,
+        },
+        { headers: { 'X-Frappe-CSRF-Token': this.csrfToken } }
+      )
+      .subscribe({
+        next: (res) => {
+          this.listing.refreshList('Improvement', this.filters, this.fields);
+        },
+        error: (err) => {},
+      });
   }
 }

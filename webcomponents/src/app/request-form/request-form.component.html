@@ -1,1 +1,11 @@
-<p>request-form works!</p>
+<div fxLayout="column" fxLayoutGap="3.75em">
+  <mat-select required placeholder="Request Type" [(value)]="selected">
+    <mat-option *ngFor="let option of options" [value]="option">
+      {{option}}
+    </mat-option>
+  </mat-select>
+  <div fxLayout="row" fxLayoutAlign="space-between">
+    <button mat-button (click)="dialogRef.close()">Cancel</button>
+    <button mat-button (click)="request()" color="primary">Request</button>
+  </div>
+</div>

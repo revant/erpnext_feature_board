@@ -13,7 +13,7 @@ frappe.ui.form.on('Review Request', {
 	reveal_password: (frm) => {
 		frm.call({
 			method: 'erpnext_feature_board.erpnext_feature_board.doctype.review_request.review_request.get_test_user_password',
-			args: { improvement_name: frm.doc.name },
+			args: { review_request: frm.doc.name },
 			callback: r => {
 				if (r.message) {
 					frappe.msgprint({

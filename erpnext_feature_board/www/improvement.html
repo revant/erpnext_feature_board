@@ -1,1 +1,13 @@
-<improvement-form docname="{{query}}"></improvement-form>
+<improvement-form docname="{{query}}" user="{{user}}" csrf-token="{{csrf_token}}"></improvement-form>
+<script>
+  const el = document.querySelector('improvement-form');
+  el.addEventListener('clickRow', e => {
+    if (e?.detail && e?.detail?.test_user_password) {
+      frappe.call({
+        method: 'erpnext_feature_board.erpnext_feature_board.doctype.review_request.review_request.get_test_user_password',
+        args: { review_request: e?.detail?.name },
+        callback: r => frappe.msgprint(r.message, __('Password for ' + e.detail.test_user_name )),
+      })
+    }
+  });
+</script>

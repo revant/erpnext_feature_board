@@ -1,66 +1,77 @@
-<mat-card>
-  <mat-card-header>
-    <mat-card-title>{{ docname }}</mat-card-title>
-    <mat-card-subtitle>{{ prNumber }}</mat-card-subtitle>
-  </mat-card-header>
-  <mat-card-content>
-    <form [formGroup]="form">
-      <div fxLayout="row" fxLayoutGap="1em">
-        <mat-form-field fxFlex="100%">
-          <input
-            matInput
-            formControlName="title"
-            placeholder="Title"/>
-        </mat-form-field>
-      </div>
-      <div fxLayout="row" fxLayoutGap="1em">
-        <mat-form-field fxFlex="50%">
-          <a href="{{ form.controls.repository.value }}" target="_blank">
-            <input
-            matInput
-            style="cursor: pointer;"
-            formControlName="repository"
-            placeholder="Repository"/>
-          </a>
-        </mat-form-field>
-        <mat-form-field fxFlex="50%">
-          <a href="{{ form.controls.prUrl.value }}" target="_blank">
-            <input
-              style="cursor: pointer;"
-              matInput
-              formControlName="prUrl"
-              placeholder="Pull Request URL"/>
-          </a>
-        </mat-form-field>
-      </div>
-      <div fxLayout="row" fxLayoutGap="1em">
-        <mat-form-field fxFlex="50%" *ngIf="form.controls.siteUrl.value">
-          <a href="{{ form.controls.siteUrl.value }}" target="_blank">
-            <input
-            matInput
-            style="cursor: pointer;"
-            formControlName="siteUrl"
-            placeholder="Site URL"/>
-          </a>
-        </mat-form-field>
-        <mat-form-field fxFlex="50%" *ngIf="form.controls.deploymentStatus.value">
-          <input
-            matInput
-            formControlName="deploymentStatus"
-            placeholder="Deployment Status"/>
-        </mat-form-field>
-      </div>
-      <div fxLayout="column" fxLayoutGap="1em">
-        <mat-accordion>
-          <mat-expansion-panel class="mat-elevation-z0">
-            <mat-expansion-panel-header>
-              <mat-panel-title>Description</mat-panel-title>
-              <mat-panel-description>Click for more</mat-panel-description>
-            </mat-expansion-panel-header>
-            <markdown ngPreserveWhitespaces [data]="prDescription"></markdown>
-          </mat-expansion-panel>
-        </mat-accordion>
-      </div>
-    </form>
-  </mat-card-content>
-</mat-card>
+<div class="" fxLayout="column" fxLayoutGap="1em">
+  <mat-card>
+    <mat-card-header fxLayout="row" fxLayoutAlign="space-between center">
+      <mat-card-title>{{ docname }}</mat-card-title>
+      <mat-card-subtitle>{{ prNumber }}</mat-card-subtitle>
+      <button
+        mat-button
+        color="primary"
+        (click)="requestToReview()"
+        *ngIf="user !== 'Guest'">Request to Review</button>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="form">
+        <div fxLayout="row" fxLayoutGap="1em">
+          <mat-form-field fxFlex="100%">
+            <input matInput formControlName="title" placeholder="Title" />
+          </mat-form-field>
+        </div>
+        <div fxLayout="row" fxLayoutGap="1em">
+          <mat-form-field fxFlex="50%">
+            <a href="{{ form.controls.repository.value }}" target="_blank">
+              <input matInput style="cursor: pointer;" formControlName="repository" placeholder="Repository" />
+            </a>
+          </mat-form-field>
+          <mat-form-field fxFlex="50%">
+            <a href="{{ form.controls.prUrl.value }}" target="_blank">
+              <input style="cursor: pointer;" matInput formControlName="prUrl" placeholder="Pull Request URL" />
+            </a>
+          </mat-form-field>
+        </div>
+        <div fxLayout="row" fxLayoutGap="1em">
+          <mat-form-field fxFlex="50%" *ngIf="form.controls.siteUrl.value">
+            <a href="{{ form.controls.siteUrl.value }}" target="_blank">
+              <input matInput style="cursor: pointer;" formControlName="siteUrl" placeholder="Site URL" />
+            </a>
+          </mat-form-field>
+          <mat-form-field fxFlex="50%" *ngIf="form.controls.deploymentStatus.value">
+            <input matInput formControlName="deploymentStatus" placeholder="Deployment Status" />
+          </mat-form-field>
+        </div>
+        <div fxLayout="column" fxLayoutGap="1em">
+          <mat-accordion>
+            <mat-expansion-panel class="mat-elevation-z0">
+              <mat-expansion-panel-header>
+                <mat-panel-title>Description</mat-panel-title>
+                <mat-panel-description>Click for more</mat-panel-description>
+              </mat-expansion-panel-header>
+              <markdown ngPreserveWhitespaces [data]="prDescription"></markdown>
+            </mat-expansion-panel>
+          </mat-accordion>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        Track Requests
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-grid-list cols="1" rows="1" rowHeight="4:1" *ngIf="user === 'Guest'">
+        <mat-grid-tile>
+          Login required<mat-icon>login</mat-icon>
+        </mat-grid-tile>
+      </mat-grid-list>
+      <app-data-list
+        (clickRow)="clickRow.emit($event)"
+        doctype="Review Request"
+        *ngIf="user !== 'Guest'"
+        [fields]="fields"
+        [linkName]="linkName"
+        [filters]="filters"
+        showFilters="false"></app-data-list>
+    </mat-card-content>
+  </mat-card>
+</div>

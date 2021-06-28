@@ -9,7 +9,6 @@
   width: 100%;
 }
 
-.mat-column-name {
-  flex: none;
-  width: 15em;
+th, td {
+  white-space: nowrap;
 }
