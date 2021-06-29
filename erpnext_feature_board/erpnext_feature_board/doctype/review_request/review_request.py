@@ -47,6 +47,16 @@ def create_test_user_for_improvement(improvement_name, review_request_uuid):
 	improvement = frappe.get_doc("Improvement", improvement_name)
 	review_request = frappe.get_doc("Review Request", review_request_uuid)
 
+	if review_request.request_type != "Add Testing User":
+		frappe.throw(
+			_("Incorrect Request Type : {0}".format(review_request.request_type))
+		)
+
+	if review_request.request_status != "Open":
+		frappe.throw(
+			_("Incorrect Request Status : {0}".format(review_request.request_status))
+		)
+
 	if not improvement.site_url:
 		frappe.throw(_("Site URL Not found for {0}".format(improvement.name)))
 
@@ -78,6 +88,7 @@ def create_test_user_for_improvement(improvement_name, review_request_uuid):
 
 	review_request.test_user_name = email
 	review_request.test_user_password = new_password
+	review_request.request_status = "Approved"
 	review_request.save()
 
 	return review_request.as_dict()
