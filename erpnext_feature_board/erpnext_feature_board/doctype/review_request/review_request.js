@@ -8,6 +8,11 @@ frappe.ui.form.on('Review Request', {
 				__('Reveal Password'), () => frm.trigger('reveal_password'),
 			);
 		}
+		if (frm.doc.request_type === "Add Testing User") {
+			frm.add_custom_button(
+				__('Add Testing User'), () => frm.trigger('add_testing_user'),
+			);
+		}
 	},
 
 	reveal_password: (frm) => {
@@ -22,6 +27,21 @@ frappe.ui.form.on('Review Request', {
 					});
 				}
 			}
+		});
+	},
+
+	add_testing_user: (frm) => {
+		frm.call({
+			method: 'erpnext_feature_board.erpnext_feature_board.doctype.review_request.review_request.create_test_user_for_improvement',
+			args: {
+				improvement_name: frm.doc.improvement,
+				review_request_uuid: frm.doc.name,
+			},
+			callback: r => {
+				if (r.message) {
+					frm.refresh();
+				}
+			},
 		});
 	}
 });
