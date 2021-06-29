@@ -21,6 +21,7 @@
    "in_list_view": 1,
    "label": "User",
    "options": "User",
+   "read_only": 1,
    "reqd": 1
   },
   {
@@ -29,6 +30,7 @@
    "in_list_view": 1,
    "label": "Improvement",
    "options": "Improvement",
+   "read_only": 1,
    "reqd": 1
   },
   {
@@ -36,6 +38,7 @@
    "fieldtype": "Select",
    "label": "Request Type",
    "options": "\nAdd Testing User\nBuild\nUpgrade\nDelete",
+   "read_only": 1,
    "reqd": 1
   },
   {
@@ -60,18 +63,20 @@
    "fieldname": "test_user_name",
    "fieldtype": "Data",
    "label": "Test User Username",
-   "permlevel": 1
+   "permlevel": 1,
+   "read_only": 1
   },
   {
    "fieldname": "test_user_password",
    "fieldtype": "Password",
    "label": "Test User Password",
-   "permlevel": 1
+   "permlevel": 1,
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-06-27 22:21:14.919734",
+ "modified": "2021-06-29 23:28:11.965850",
  "modified_by": "Administrator",
  "module": "ERPNext Feature Board",
  "name": "Review Request",

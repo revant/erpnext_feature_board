@@ -21,8 +21,12 @@ class ReviewRequest(Document):
 			and frappe.session.user == "Administrator"
 		):
 			frappe.throw(_("Invalid User, Guest or Administrator not allowed"))
-		self.user = frappe.session.user
-		self.request_status = "Open"
+
+		if not self.user:
+			self.user = frappe.session.user
+
+		if not self.request_status:
+			self.request_status = "Open"
 
 
 @frappe.whitelist()
