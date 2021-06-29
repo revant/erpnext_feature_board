@@ -12,6 +12,7 @@ RUN /install_frappe ${FRAPPE_BRANCH} && \
   mkdir -p /home/frappe/frappe-bench/sites/assets && \
   cd /home/frappe/frappe-bench/apps/erpnext_feature_board && yarn && \
   cd /home/frappe/frappe-bench/apps/frappe && \
+  echo "erpnext_feature_board" >> /home/frappe/frappe-bench/sites/apps.txt && \
   yarn production --skip_frappe --app erpnext_feature_board && \
   mkdir -p /home/frappe/frappe-bench/sites/assets/erpnext_feature_board && \
   cp -R /home/frappe/frappe-bench/apps/erpnext_feature_board/erpnext_feature_board/public/* /home/frappe/frappe-bench/sites/assets/erpnext_feature_board 2>/dev/null || : && \
