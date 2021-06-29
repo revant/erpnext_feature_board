@@ -8,7 +8,7 @@ frappe.ui.form.on('Review Request', {
 				__('Reveal Password'), () => frm.trigger('reveal_password'),
 			);
 		}
-		if (frm.doc.request_type === "Add Testing User") {
+		if (frm.doc.request_type === 'Add Testing User' && frm.doc.request_status === 'Open') {
 			frm.add_custom_button(
 				__('Add Testing User'), () => frm.trigger('add_testing_user'),
 			);
