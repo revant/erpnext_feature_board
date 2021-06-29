@@ -65,12 +65,10 @@ def create_test_user_for_improvement(improvement_name, review_request_uuid):
 
 	s.post(
 		f"{improvement.site_url}/api/method/login",
-		data=json.dumps(
-			{
-				"usr": "Administrator",
-				"pwd": improvement.get_password("site_admin_password"),
-			}
-		),
+		data={
+			"usr": "Administrator",
+			"pwd": improvement.get_password("site_admin_password"),
+		},
 	).json()
 
 	email = frappe.mock("email")
