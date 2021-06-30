@@ -64,20 +64,18 @@
    "fieldname": "test_user_name",
    "fieldtype": "Data",
    "label": "Test User Username",
-   "permlevel": 1,
    "read_only": 1
   },
   {
    "fieldname": "test_user_password",
    "fieldtype": "Password",
    "label": "Test User Password",
-   "permlevel": 1,
    "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-06-30 09:55:17.478258",
+ "modified": "2021-06-30 19:20:18.601364",
  "modified_by": "Administrator",
  "module": "ERPNext Feature Board",
  "name": "Review Request",
@@ -96,25 +94,17 @@
    "write": 1
   },
   {
+   "create": 1,
    "delete": 1,
    "email": 1,
    "export": 1,
-   "permlevel": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  },
-  {
-   "email": 1,
-   "export": 1,
+   "if_owner": 1,
    "print": 1,
    "read": 1,
    "report": 1,
    "role": "All",
-   "share": 1
+   "share": 1,
+   "write": 1
   }
  ],
  "sort_field": "modified",
