@@ -3,6 +3,7 @@
 
 import json
 import uuid
+from erpnext_feature_board.erpnext_feature_board.doctype.improvement.improvement import queue_delete, queue_deployment, queue_upgrade
 
 import frappe
 import requests
@@ -17,7 +18,10 @@ class ReviewRequest(Document):
 	def validate(self):
 		self.validate_user()
 		self.validate_status()
-		self.approve_duplicate_requests()
+
+		if self.request_status == "Approved":
+			self.approve_duplicate_requests()
+			self.update_improvement_state()
 
 	def validate_user(self):
 		if (
@@ -34,9 +38,6 @@ class ReviewRequest(Document):
 			self.request_status = "Open"
 
 	def approve_duplicate_requests(self):
-		if self.request_status != "Approved":
-			return
-
 		existing_requests = frappe.get_all(
 			"Review Request",
 			filters={
@@ -49,6 +50,15 @@ class ReviewRequest(Document):
 		for request in existing_requests:
 			frappe.db.set_value("Review Request", request.name, "request_status", "Approved")
 
+	def update_improvement_state(self):
+		improvement_deployment_status = frappe.db.get_value("Improvement", self.improvement, "deployment_status")
+		if self.request_type == "Build" and not improvement_deployment_status:
+			queue_deployment(self.improvement)
+		elif self.request_type == "Upgrade" and improvement_deployment_status == "Ready":
+			queue_upgrade(self.improvement)
+		elif self.request_type == "Delete" and improvement_deployment_status == "Ready":
+			queue_delete(self.improvement)
+
 
 @frappe.whitelist()
 def get_test_user_password(review_request):
@@ -56,7 +66,7 @@ def get_test_user_password(review_request):
 
 	if request.user != frappe.session.user:
 		frappe.throw(_("Not Permitted"))
-		return None
+		return
 
 	if request.test_user_password:
 		return request.get_password("test_user_password")
