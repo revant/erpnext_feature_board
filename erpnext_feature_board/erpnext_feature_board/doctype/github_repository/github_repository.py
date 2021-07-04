@@ -63,14 +63,6 @@ class GithubRepository(Document):
 		frappe.enqueue(method=sync_improvements, repository=self.name)
 
 
-def sync_repository_improvements():
-	"""
-	Hourly hook to sync pull requests from all repositories and update Improvement records
-	"""
-	for repo in frappe.get_all("Github Repository"):
-		sync_improvements(repo.name)
-
-
 def sync_improvements(repository: str):
 	"""
 	Syncs and updates Improvement records from Github
