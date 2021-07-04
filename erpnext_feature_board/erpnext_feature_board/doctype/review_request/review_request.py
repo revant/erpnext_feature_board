@@ -17,6 +17,7 @@ class ReviewRequest(Document):
 	def validate(self):
 		self.validate_user()
 		self.validate_status()
+		self.approve_duplicate_requests()
 
 	def validate_user(self):
 		if (
@@ -31,6 +32,22 @@ class ReviewRequest(Document):
 	def validate_status(self):
 		if not self.request_status:
 			self.request_status = "Open"
+
+	def approve_duplicate_requests(self):
+		if self.request_status != "Approved":
+			return
+
+		existing_requests = frappe.get_all(
+			"Review Request",
+			filters={
+				"request_status": "Open",
+				"request_type": self.request_type,
+				"improvement": self.improvement,
+			},
+		)
+
+		for request in existing_requests:
+			frappe.db.set_value("Review Request", request.name, "request_status", "Approved")
 
 
 @frappe.whitelist()
