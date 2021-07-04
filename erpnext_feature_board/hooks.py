@@ -117,7 +117,8 @@ home_page = "improvements"
 scheduler_events = {
 	"hourly": [
 		"erpnext_feature_board.hook_events.github_repository.sync_repository_improvements",
-		"erpnext_feature_board.hook_events.improvement.delete_closed_improvements"
+		"erpnext_feature_board.hook_events.improvement.delete_closed_improvements",
+		"erpnext_feature_board.hook_events.review_request.delete_approved_build_requests"
 	],
 	"all": [
 		"erpnext_feature_board.tasks.deploy.process_build_queue_improvements",
