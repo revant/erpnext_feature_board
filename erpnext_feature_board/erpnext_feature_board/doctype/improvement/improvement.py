@@ -36,8 +36,6 @@ class Improvement(WebsiteGenerator):
 			<strong>Pull Request Description</strong>: {self.description}
 		"""
 
-		frappe.log_error(discourse_post_body)
-
 		if not self.post_id:
 			self.create_discourse_post(settings, discourse_post_body)
 		else:
