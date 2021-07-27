@@ -58,6 +58,7 @@ export class ImprovementFormComponent implements OnInit {
         this.form.controls.repository.setValue(data.repository);
         this.form.controls.siteUrl.setValue(data.site_url);
         this.form.controls.prUrl.setValue(data.pull_request_url);
+        this.form.controls.deploymentStatus.setValue(data.deployment_status);
         this.form.disable();
       },
       error: (err) => {},
