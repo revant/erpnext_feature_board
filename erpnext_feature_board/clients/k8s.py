@@ -256,6 +256,7 @@ def create_helm_release(improvement: "Improvement", site_name, site_password):
 					"installApps": install_apps,
 					"dropSiteOnUninstall": True,
 				},
+				"securityContext": { "capabilities": { "add": ["CHOWN"] } },
 				"ingress": {
 					"enabled": True,
 					"hosts": [
