@@ -225,7 +225,7 @@ def create_helm_release(improvement: "Improvement", site_name, site_password):
 				"repository": "https://helm.erpnext.com",
 				"name": "erpnext",
 				# Use >=3.2.5
-				"version": "3.2.38",
+				"version": "3.2.52",
 			},
 			"values": {
 				"nginxImage": {
